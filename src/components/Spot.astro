@@ -1,0 +1,39 @@
+---
+// A spot illustration from src/assets/spots/ (made by scripts/build-spot-illustrations.py),
+// served as AVIF with a WebP fallback at 300 and 600 px. Decorative: the text beside it carries the
+// meaning. If the image is absent, the badge icon is shown instead.
+import { Picture } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import Icon from "./Icon.astro";
+import type { IconName } from "../i18n/types";
+
+interface Props {
+  /** File-name prefix: "01" to "07". */
+  spot: string;
+  fallback: IconName;
+  /** Rendered width, for the browser's choice between 300 and 600 px. */
+  sizes: string;
+}
+
+const { spot, fallback, sizes } = Astro.props;
+const spots = import.meta.glob<{ default: ImageMetadata }>("../assets/spots/*.png", { eager: true });
+const match = Object.entries(spots).find(([path]) => path.split("/").pop()?.startsWith(`${spot}-`));
+---
+
+{
+  match ? (
+    <Picture
+      src={match[1].default}
+      formats={["avif"]}
+      fallbackFormat="webp"
+      widths={[300, 600]}
+      sizes={sizes}
+      quality={70}
+      alt=""
+      loading="lazy"
+      class="spot"
+    />
+  ) : (
+    <Icon name={fallback} />
+  )
+}

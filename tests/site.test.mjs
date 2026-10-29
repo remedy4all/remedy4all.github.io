@@ -59,7 +59,7 @@ test("actions and news landing pages: heading and under-construction statement o
     const html = read(path);
     const main = html.match(/<main\b[\s\S]*?<\/main>/)[0];
     assert.match(main, new RegExp(`<h1><span class="marker">${heading}</span></h1>`));
-    assert.match(main, new RegExp(`<div class="uc-note card framed">[\\s\\S]*?<svg aria-hidden="true"[\\s\\S]*?<p class="under-construction">${statement}\\.</p>\\s*<svg class="motif motif-inline`));
+    assert.match(main, new RegExp(`<div class="uc-note card framed">[\\s\\S]*?<picture>[\\s\\S]*?07-under-construction[\\s\\S]*?<\/picture>[\\s\\S]*?<p class="under-construction">${statement}\\.</p>\\s*<svg class="motif motif-inline`));
     assert.equal(visibleText(main).trim(), `${heading} ${statement}.`, `${path} must say nothing else`);
   }
 });
@@ -223,7 +223,7 @@ test("hero image files are 250 KB or less", () => {
 test("what we do: six icon cards above the full statutory list, in both languages", () => {
   for (const [path, heading] of [["/what-we-do/", "Όπως ορίζει το καταστατικό"], ["/en/what-we-do/", "As set out in the statute"]]) {
     const html = read(path);
-    const cards = [...html.matchAll(/<li class="card area" id="(area-\d)">\s*<div class="card-media"><span class="icon"><!--[^>]*-->\s*<svg aria-hidden="true"[\s\S]*?<\/svg>\s*<\/span><\/div>\s*<h2>([^<]+)<\/h2>\s*<p>([^<]+)<\/p>/g)];
+    const cards = [...html.matchAll(/<li class="card area" id="(area-\d)">\s*<div class="card-media">\s*<picture>[\s\S]*?<\/picture>\s*<\/div>\s*<h2>([^<]+)<\/h2>\s*<p>([^<]+)<\/p>/g)];
     assert.deepEqual(cards.map((m) => m[1]), ["area-1", "area-2", "area-3", "area-4", "area-5", "area-6"], path);
     const statute = html.indexOf(`<h2>${heading}</h2>`);
     assert.ok(statute > html.lastIndexOf('class="card area"'), "full list comes after the cards");
@@ -288,4 +288,39 @@ test("contact fields carry icon badges", () => {
     assert.equal(dts.length, 3);
     for (const dt of dts) assert.match(dt, /<span class="icon">[\s\S]*?<svg aria-hidden="true"/);
   }
+});
+
+// Spot illustrations (REQ-REMD-016).
+const spotPicture = (html, n) =>
+  html.match(new RegExp(`<picture>(?:(?!</picture>)[\\s\\S])*?/_astro/0${n}-[^"]+[\\s\\S]*?</picture>`));
+
+test("area cards show their spot illustration, decorative, AVIF and WebP at 300w and 600w", () => {
+  for (const path of ["/what-we-do/", "/en/what-we-do/", "/", "/en/"]) {
+    const html = read(path);
+    for (let n = 1; n <= 6; n++) {
+      const pic = spotPicture(html, n);
+      assert.ok(pic, `${path}: spot 0${n} missing`);
+      assert.match(pic[0], /<source srcset="[^"]+\.avif 300w, [^"]+\.avif 600w" type="image\/avif"/);
+      assert.match(pic[0], /<img src="[^"]+\.webp" srcset="[^"]+\.webp 300w, [^"]+\.webp 600w"[^>]* alt(="")?[ >]/);
+      assert.match(pic[0], /width="\d+" height="\d+"/);
+      assert.match(pic[0], /loading="lazy"/);
+    }
+  }
+});
+
+test("under-construction notes show illustration 07 in both languages", () => {
+  for (const path of ["/actions/", "/news/", "/en/actions/", "/en/news/"]) {
+    const note = read(path).match(/<div class="uc-note card framed">[\s\S]*?<\/div>\s*<\/div>|<div class="uc-note card framed">[\s\S]*?<p class="under-construction">/)[0];
+    assert.match(note, /07-under-construction[^"]*\.avif 300w/);
+  }
+});
+
+test("spot illustration files are 60 KB or less", () => {
+  const dir = join(DIST, "_astro");
+  const files = readdirSync(dir).filter((f) => /^0[1-7]-/.test(f));
+  for (let n = 1; n <= 7; n++) {
+    assert.ok(files.some((f) => f.startsWith(`0${n}-`) && f.endsWith(".avif")), `0${n} avif`);
+    assert.ok(files.some((f) => f.startsWith(`0${n}-`) && f.endsWith(".webp")), `0${n} webp`);
+  }
+  for (const f of files) assert.ok(statSync(join(dir, f)).size <= 60 * 1024, `${f} is over 60 KB`);
 });

@@ -1,6 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
-import Icon from "../Icon.astro";
+import Spot from "../Spot.astro";
 import MarkedText from "../MarkedText.astro";
 import Motif from "../Motif.astro";
 import Shape from "../Shape.astro";
@@ -24,7 +24,9 @@ const d = t(lang);
         {
           d.areas.map((area) => (
             <li class="card area" id={area.id}>
-              <div class="card-media"><Icon name={area.icon} /></div>
+              <div class="card-media">
+                <Spot spot={area.id.replace("area-", "0")} fallback={area.icon} sizes="9rem" />
+              </div>
               <h2>{area.title}</h2>
               <p>{area.line}</p>
             </li>

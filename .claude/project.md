@@ -73,6 +73,11 @@ project and survive `adapt` reruns and kit updates.
   - Graphic devices: line motif, paper-cut shapes, round badges, marker (`[...]` in heading
     strings), offset frame. Decorative only, palette colours and tints only, no motion.
   - Hero text over the image is checked from pixels, since axe cannot judge it.
+- **Spot illustrations (REQ-REMD-016):** sources in `brand/source/spots/` (01 to 06 cards, 07
+  under construction). `scripts/build-spot-illustrations.py` keys the cream background to
+  transparency (edge-connected only, tight tolerance) and writes masters to `src/assets/spots/`.
+  `Spot.astro` renders them, falling back to the badge icon. Rerun the script after replacing a
+  source; no code change is needed.
 - **Icons:** Lucide 1.64.0 (ISC) in `src/icons/`, inlined by `Icon.astro`.
 - **Font:** Noto Sans variable, self-hosted in `public/fonts/` (OFL 1.1), latin and greek subsets.
 - **Tests:** `tests/site.test.mjs`, Node's built-in runner, run against `dist/` after a build.
@@ -129,6 +134,7 @@ root, after `npm ci`.
 - Preview: `npm run preview`
 - Kit hook tests: `uv run --script .claude/hooks/test_block_ai_attribution.py`
 - Brand assets: `uv run --script scripts/build-brand-assets.py` (only when `brand/source/` changes)
+- Spot illustrations: `uv run --script scripts/build-spot-illustrations.py` (only when `brand/source/spots/` changes)
 - Spec: `openspec validate --strict`
 - CI gates, in order: `npm ci`, `npm run check`, `npm run build`, `npm test`. `npm audit` is reported
   and does not block.

@@ -454,9 +454,24 @@ main > .band.band-quote {
   outline: 1px solid rgba(249, 249, 249, 0.18);
 }
 
-/* Media slot: a badge now, room for a spot illustration later without changing the card. */
+/* Media slot: the spot illustration (REQ-REMD-016), or the badge icon when the image is absent.
+   The illustrations are keyed to transparency, so they sit on any band or card colour. */
 .card-media {
   line-height: 0;
+}
+
+.spot {
+  display: block;
+  width: 9rem;
+  height: auto;
+}
+
+.area-grid-compact .spot {
+  width: 4.5rem;
+}
+
+.uc-note .spot {
+  width: 8rem;
 }
 
 /* Cards: one radius, one shadow. */

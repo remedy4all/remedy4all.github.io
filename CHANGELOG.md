@@ -3,6 +3,17 @@
 All notable changes to the site. Versions follow [Semantic Versioning](https://semver.org/); each
 release is tagged `vX.Y.Z`.
 
+## [0.5.0] - 2026-10-29
+
+Spot illustrations (REQ-REMD-016).
+
+### Added
+- His seven spot illustrations: one on each of the six area cards (What we do and the home page),
+  and one on the Actions and News under-construction notes in both languages. Background keyed
+  to transparency, served as AVIF and WebP at 300 and 600 px. A missing image falls back to the
+  badge icon.
+- `scripts/build-spot-illustrations.py`, rerun whenever a source illustration is replaced.
+
 ## [0.4.0] - 2026-10-29
 
 Design pass (REQ-REMD-014, including its graphics addendum).

@@ -44,6 +44,22 @@ phone a `tel:` link, and an address plain text.
   - The home page's navy quote band.
   - `MarkedText.astro`: a pale-blue marker behind words written `[like this]` in a heading string.
   - `.framed`: an offset blue frame.
+- **Spot illustrations** (his, generated in the hero's style). Sources are in
+  `brand/source/spots/`: `01` to `06` for the six area cards, `07` for the under-construction
+  notes. **Their flat cream background is keyed to transparency**, not matched with a surface
+  colour, so they sit on cream bands, white cards and anything else with no visible square.
+  [`scripts/build-spot-illustrations.py`](scripts/build-spot-illustrations.py) does the keying:
+  - it removes only background connected to the image edge, with a tight tolerance, so the cream
+    papers inside the artwork stay;
+  - it crops all seven to one shared square, so the scale matches and no motif is cut;
+  - it writes 600 px transparent PNG masters to `src/assets/spots/`.
+  `src/components/Spot.astro` serves them as AVIF with a WebP fallback at 300 and 600 px (each
+  under 60 KB, `alt=""`, lazy). A missing image falls back to the card's badge icon. To replace one
+  (`04` is provisional), put the new JPEG in `brand/source/spots/` under the same name and run:
+
+  ```bash
+  uv run --script scripts/build-spot-illustrations.py
+  ```
 - **Cards** share one radius and one shadow (`--radius`, `--shadow` in `src/styles/global.css`).
   Each card's `.card-media` slot holds a badge now and can take a spot illustration later.
 
@@ -117,6 +133,7 @@ request.
 | `src/components/pages/` | The page bodies, shared by both languages |
 | `src/components/` | Header, footer, language switch, icon, motif, shape, marker, under-construction note |
 | `src/assets/hero-banner.jpg` | Hero illustration source, optimised at build time |
+| `src/assets/spots/` | Spot illustration masters (transparent PNG), generated from `brand/source/spots/` |
 | `src/icons/` | Lucide icons (ISC), self-hosted |
 | `src/content.config.ts`, `src/content/` | The actions and news collections (empty) |
 | `src/lib/entries.ts` | A section's entries in one language, newest first |

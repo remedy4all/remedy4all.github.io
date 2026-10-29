@@ -1,5 +1,5 @@
 ---
-import Icon from "./Icon.astro";
+import Spot from "./Spot.astro";
 import Motif from "./Motif.astro";
 import { t, type Lang } from "../i18n";
 
@@ -11,7 +11,7 @@ const { lang } = Astro.props;
 ---
 
 <div class="uc-note card framed">
-  <div class="card-media"><Icon name="construction" /></div>
+  <div class="card-media"><Spot spot="07" fallback="construction" sizes="8rem" /></div>
   <p class="under-construction">{t(lang).sections.underConstruction}</p>
   <Motif edge="inline" />
 </div>
