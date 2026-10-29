@@ -3,6 +3,7 @@ import type { Dictionary } from "./types";
 
 export const en: Dictionary = {
   languageName: "English",
+  languageCode: "EN",
   ogLocale: "en_GB",
   skipToContent: "Skip to content",
   navLabel: "Main navigation",
@@ -15,10 +16,12 @@ export const en: Dictionary = {
     },
     about: {
       title: "About us",
+      heading: "About [us]",
       description: "Legal form, founding, ΓΕΜΗ number and seat of REMEDY FOR ALL.",
     },
     whatWeDo: {
       title: "What we do",
+      heading: "What [we do]",
       description: "The purposes of REMEDY FOR ALL, as set out in Article 4 of its statute.",
     },
     actions: {
@@ -46,7 +49,49 @@ export const en: Dictionary = {
       news: "The company's news.",
       contact: "Contact details.",
     },
+    heroHeadline: "We protect and support [vulnerable groups].",
+    tagline: "Together in Support",
+    heroCta: "What we do",
   },
+
+  areas: [
+    {
+      id: "area-1",
+      icon: "scale",
+      title: "Proposals for the legal framework",
+      line: "Studies and evidence-based proposals to improve the legal position of vulnerable groups.",
+    },
+    {
+      id: "area-2",
+      icon: "heart-handshake",
+      title: "Social inclusion and preventing stigma",
+      line: "Opportunities for social inclusion, and action to prevent stigma and marginalisation.",
+    },
+    {
+      id: "area-3",
+      icon: "clipboard-list",
+      title: "Tools for frontline staff",
+      line: "Tools for the staff of protection bodies, to organise and follow reintegration.",
+    },
+    {
+      id: "area-4",
+      icon: "graduation-cap",
+      title: "Education, health and legal support",
+      line: "Conferences, seminars and educational events, and programmes of health education and legal support.",
+    },
+    {
+      id: "area-5",
+      icon: "handshake",
+      title: "Partnerships and consulting",
+      line: "Partnerships and joint activities with bodies at national and international level, and consulting on related projects.",
+    },
+    {
+      id: "area-6",
+      icon: "file-check",
+      title: "Programmes and resources",
+      line: "Applying to programmes in Greece and abroad, to secure the necessary resources.",
+    },
+  ],
 
   about: {
     intro:
@@ -68,6 +113,7 @@ export const en: Dictionary = {
   },
 
   whatWeDo: {
+    statuteHeading: "As set out in the statute",
     listIntro: "Under Article 4 of its statute, these purposes are set out in detail as follows:",
     purposes: [
       "Preparing, publishing, proposing and implementing evidence-based proposals and studies to improve the legal position of these vulnerable groups.",
@@ -97,7 +143,7 @@ export const en: Dictionary = {
   },
 
   footer: {
-    legal: "REMEDY FOR ALL non-profit civil company · ΓΕΜΗ 174746001000 · Municipality of Athens",
+    legal: ["REMEDY FOR ALL non-profit civil company", "ΓΕΜΗ 174746001000 · Municipality of Athens"],
     supportedBy: "Supported by",
   },
 

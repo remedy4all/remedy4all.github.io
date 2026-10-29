@@ -1,4 +1,6 @@
 ---
+import Icon from "./Icon.astro";
+import Motif from "./Motif.astro";
 import { t, type Lang } from "../i18n";
 
 interface Props {
@@ -8,4 +10,8 @@ interface Props {
 const { lang } = Astro.props;
 ---
 
-<p class="under-construction">{t(lang).sections.underConstruction}</p>
+<div class="uc-note card framed">
+  <div class="card-media"><Icon name="construction" /></div>
+  <p class="under-construction">{t(lang).sections.underConstruction}</p>
+  <Motif edge="inline" />
+</div>

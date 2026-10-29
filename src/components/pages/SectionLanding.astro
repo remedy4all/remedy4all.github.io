@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import UnderConstruction from "../UnderConstruction.astro";
+import MarkedText from "../MarkedText.astro";
 import { entryPath, t, type Lang, type Section } from "../../i18n";
 import { entriesFor, formatDate } from "../../lib/entries";
 
@@ -15,7 +16,7 @@ const entries = await entriesFor(section, lang);
 ---
 
 <Base lang={lang} page={section}>
-  <h1>{d.pages[section].title}</h1>
+  <h1><MarkedText text={d.pages[section].title} /></h1>
   {
     entries.length === 0 ? (
       <UnderConstruction lang={lang} />

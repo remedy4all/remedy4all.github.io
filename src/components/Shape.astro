@@ -1,0 +1,14 @@
+---
+// A soft paper-cut shape echoing the hero, behind a band's content. Decorative only.
+interface Props {
+  corner?: "top-right" | "bottom-left";
+}
+
+const { corner = "top-right" } = Astro.props;
+---
+
+<div class="band-shapes" aria-hidden="true">
+  <svg class={`shape shape-${corner}`} viewBox="0 0 260 260" aria-hidden="true" focusable="false">
+    <path d="M62 12c80-22 168 18 188 98 20 80-38 148-118 140C52 242-8 192 6 112 16 56 26 22 62 12z"></path>
+  </svg>
+</div>

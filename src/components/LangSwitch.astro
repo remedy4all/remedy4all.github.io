@@ -1,0 +1,29 @@
+---
+import { LANGS, t, type Lang } from "../i18n";
+
+interface Props {
+  lang: Lang;
+  /** The same page in the other language. */
+  href: string;
+}
+
+const { lang, href } = Astro.props;
+---
+
+<div class="lang-switch" role="group" aria-label={t(lang).switchLabel}>
+  {
+    LANGS.map((l, i) => (
+      <>
+        {i > 0 && <span class="lang-sep" aria-hidden="true">/</span>}
+        {l === lang ? (
+          <span class="lang-current" aria-current="true" lang={l}>{t(l).languageCode}</span>
+        ) : (
+          <a href={href} lang={l} hreflang={l}>
+            {t(l).languageCode}
+            <span class="sr-only">, {t(l).languageName}</span>
+          </a>
+        )}
+      </>
+    ))
+  }
+</div>

@@ -2,16 +2,22 @@
 import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import { LANGS, pathFor, t, type Lang, type PageKey } from "../i18n";
+import Motif from "../components/Motif.astro";
+import Shape from "../components/Shape.astro";
+import { LANGS, otherLang, pathFor, t, type Lang, type PageKey } from "../i18n";
 
 interface Props {
   lang: Lang;
   page: PageKey;
   /** Set on an actions or news entry page: its own title, description and path. */
   entry?: { title: string; description: string; path: string };
+  /** The page supplies its own `section.band` blocks; otherwise its content is one band. */
+  bands?: boolean;
 }
 
-const { lang, page, entry } = Astro.props;
+const { lang, page, entry, bands = false } = Astro.props;
+// An entry exists in one language only, so its switch leads to the other language's section page.
+const switchHref = pathFor(otherLang(lang), page);
 const d = t(lang);
 const meta = entry ?? d.pages[page];
 const title = page === "home" && !entry ? "REMEDY FOR ALL" : `${meta.title} | REMEDY FOR ALL`;
@@ -51,12 +57,32 @@ const ogImage = new URL("/brand/og-image.png", Astro.site).href;
   </head>
   <body>
     <a class="skip-link" href="#main">{d.skipToContent}</a>
-    <Header lang={lang} page={page} inEntry={Boolean(entry)} />
+    <div id="top-sentinel" aria-hidden="true"></div>
+    <Header lang={lang} page={page} switchHref={switchHref} inEntry={Boolean(entry)} />
     <main id="main" tabindex="-1">
-      <div class="container">
-        <slot />
-      </div>
+      {
+        bands ? (
+          <slot />
+        ) : (
+          <section class="band">
+            <Shape corner="top-right" />
+            <div class="container narrow">
+              <slot />
+            </div>
+            <Motif edge="bottom" side="right" />
+          </section>
+        )
+      }
     </main>
-    <Footer lang={lang} />
+    <Footer lang={lang} switchHref={switchHref} />
+    <script is:inline>
+      // Compact header once the page is scrolled. Without this, the header is still sticky.
+      (() => {
+        const header = document.querySelector(".site-header");
+        const sentinel = document.getElementById("top-sentinel");
+        if (!header || !sentinel || !("IntersectionObserver" in window)) return;
+        new IntersectionObserver(([e]) => header.classList.toggle("is-compact", !e.isIntersecting)).observe(sentinel);
+      })();
+    </script>
   </body>
 </html>

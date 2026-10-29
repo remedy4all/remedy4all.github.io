@@ -1,5 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
+import Icon from "../Icon.astro";
+import MarkedText from "../MarkedText.astro";
 import { t, type Lang } from "../../i18n";
 import { contactDisplay, type ContactField } from "../../lib/contact";
 import { CONTACT } from "../../../site.config.mjs";
@@ -11,19 +13,24 @@ interface Props {
 const { lang } = Astro.props;
 const d = t(lang);
 const fields: ContactField[] = ["email", "phone", "address"];
+const icons = { email: "mail", phone: "phone", address: "map-pin" } as const;
 const rows = fields.map((field) => ({
   label: d.contact.labels[field],
+  icon: icons[field],
   ...contactDisplay(field, CONTACT[field], d.contact.comingSoon),
 }));
 ---
 
 <Base lang={lang} page="contact">
-  <h1>{d.pages.contact.title}</h1>
-  <dl class="facts">
+  <h1><MarkedText text={d.pages.contact.title} /></h1>
+  <dl class="facts contact-fields card framed">
     {
       rows.map((row) => (
         <div>
-          <dt>{row.label}</dt>
+          <dt>
+            <Icon name={row.icon} />
+            {row.label}
+          </dt>
           <dd class={row.published ? undefined : "pending"}>
             {row.href ? <a href={row.href}>{row.text}</a> : row.text}
           </dd>

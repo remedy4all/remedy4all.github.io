@@ -11,6 +11,8 @@ embedded, opaque PNG with its background colour baked in. This script:
 - picks the embedded PNG placed inside each SVG's viewBox,
 - crops it to the artwork (non-background pixels plus a margin), keeping every pixel unchanged,
 - writes public/brand/remedy-logo-light.png and remedy-logo-dark.png,
+- writes public/brand/remedy-logo-light-header.png: the light crop cut just above its tagline
+  (the tagline is set as text in the home hero instead),
 - copies CSSA's logo to public/brand/cssa-logo.png,
 - derives the favicons from the "r" of the dark logo, padded with its own navy,
 - derives the Open Graph image: the dark logo centred on a 1200 x 630 canvas of its own navy,
@@ -69,6 +71,24 @@ def artwork_box(img: Image.Image, bg: tuple[int, int, int]) -> tuple[int, int, i
     )
 
 
+def above_tagline(img: Image.Image, bg: tuple[int, int, int]) -> Image.Image:
+    """The light crop without its last line of artwork (the tagline «Together in Support»)."""
+    px = img.load()
+    w, h = img.size
+    content = [any(max(abs(a - b) for a, b in zip(px[x, y], bg)) > DIFF for x in range(w)) for y in range(h)]
+    runs, start = [], None
+    for y, c in enumerate(content + [False]):
+        if c and start is None:
+            start = y
+        elif not c and start is not None:
+            runs.append((start, y))
+            start = None
+    if len(runs) < 2:
+        raise SystemExit("Could not find the tagline line in the light logo")
+    above_end = runs[-2][1]
+    return img.crop((0, 0, w, min(above_end + MARGIN, runs[-1][0])))
+
+
 def first_glyph(img: Image.Image, bg: tuple[int, int, int]) -> Image.Image:
     """The first glyph of the light-on-dark word: the 'r' of «remedy» in the dark logo."""
     px = img.load()
@@ -97,6 +117,11 @@ def main() -> None:
         logos[variant] = (cropped, bg)
         print(f"{variant}: {cropped.size[0]}x{cropped.size[1]}, background #{bytes(bg).hex().upper()}")
 
+    light, cream = logos["light"]
+    header = above_tagline(light, cream)
+    header.save(OUT / "remedy-logo-light-header.png", optimize=True)
+    print(f"light header: {header.size[0]}x{header.size[1]}")
+
     shutil.copyfile(SRC / "cssa-logo-horizontal.png", OUT / "cssa-logo.png")
 
     dark, navy = logos["dark"]
@@ -110,7 +135,7 @@ def main() -> None:
     logo = dark.resize((round(dark.width * scale), round(dark.height * scale)), Image.LANCZOS)
     og.paste(logo, ((1200 - logo.width) // 2, (630 - logo.height) // 2))
     og.save(OUT / "og-image.png", optimize=True)
-    print("Wrote public/brand/*, public/favicon-32.png, public/apple-touch-icon.png, public/favicon.ico")
+    print("Wrote public/brand/* (incl. remedy-logo-light-header.png), public/favicon-32.png, public/apple-touch-icon.png, public/favicon.ico")
 
 
 if __name__ == "__main__":

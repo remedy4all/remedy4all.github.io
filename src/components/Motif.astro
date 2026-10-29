@@ -1,0 +1,15 @@
+---
+// The line motif: one slow S-curve traced from the hero's paper-cut waves. Decorative only.
+// Placed on a band's top or bottom edge it straddles the boundary inside the empty padding
+// between bands, so it never sits under text. "inline" draws it inside a block instead.
+interface Props {
+  edge?: "top" | "bottom" | "inline";
+  side?: "left" | "right";
+}
+
+const { edge = "bottom", side = "right" } = Astro.props;
+---
+
+<svg class={`motif motif-${edge} motif-${side}`} viewBox="0 0 240 90" aria-hidden="true" focusable="false">
+  <path d="M2 70C48 22 104 12 146 40s84 46 92-12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+</svg>

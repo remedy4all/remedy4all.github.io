@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import MarkedText from "../MarkedText.astro";
 import { pathFor, t, type Lang } from "../../i18n";
 
 interface Props {
@@ -12,9 +13,9 @@ const fields = Object.values(d.about.fields);
 ---
 
 <Base lang={lang} page="about">
-  <h1>{d.pages.about.title}</h1>
+  <h1><MarkedText text={d.pages.about.heading ?? d.pages.about.title} /></h1>
   <p class="lead">{d.about.intro}</p>
-  <dl class="facts">
+  <dl class="facts card framed">
     {
       fields.map(([term, value]) => (
         <div>

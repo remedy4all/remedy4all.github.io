@@ -1,23 +1,26 @@
 ---
-import { PAGES, otherLang, pathFor, t, type Lang, type PageKey } from "../i18n";
+import LangSwitch from "./LangSwitch.astro";
+import { PAGES, pathFor, t, type Lang, type PageKey } from "../i18n";
 
 interface Props {
   lang: Lang;
   page: PageKey;
+  /** The same page in the other language, for the switch. */
+  switchHref: string;
   /** On an entry page the section link is current, but is not the page itself. */
   inEntry?: boolean;
 }
 
-const { lang, page, inEntry = false } = Astro.props;
+const { lang, page, switchHref, inEntry = false } = Astro.props;
 const d = t(lang);
-const other = otherLang(lang);
 ---
 
 <header class="site-header">
   <div class="container header-inner">
     <a class="brand" href={pathFor(lang, "home")}>
-      <img src="/brand/remedy-logo-light.png" width="737" height="391" alt="Remedy for All" />
+      <img src="/brand/remedy-logo-light-header.png" width="737" height="259" alt="Remedy for All" />
     </a>
+    <LangSwitch lang={lang} href={switchHref} />
     <nav aria-label={d.navLabel}>
       <ul class="nav-list">
         {
@@ -31,8 +34,5 @@ const other = otherLang(lang);
         }
       </ul>
     </nav>
-    <div class="lang-switch" role="group" aria-label={d.switchLabel}>
-      <a href={pathFor(other, page)} lang={other} hreflang={other}>{t(other).languageName}</a>
-    </div>
   </div>
 </header>

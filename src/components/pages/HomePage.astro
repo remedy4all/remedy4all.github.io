@@ -1,5 +1,11 @@
 ---
+import { Picture } from "astro:assets";
 import Base from "../../layouts/Base.astro";
+import Icon from "../Icon.astro";
+import MarkedText from "../MarkedText.astro";
+import Motif from "../Motif.astro";
+import Shape from "../Shape.astro";
+import hero from "../../assets/hero-banner.jpg";
 import { pathFor, t, type Lang } from "../../i18n";
 import { entriesFor } from "../../lib/entries";
 
@@ -9,28 +15,80 @@ interface Props {
 
 const { lang } = Astro.props;
 const d = t(lang);
+const areasHref = `${pathFor(lang, "whatWeDo")}#areas`;
 const empty = {
   actions: (await entriesFor("actions", lang)).length === 0,
   news: (await entriesFor("news", lang)).length === 0,
 };
-const links = ["about", "whatWeDo", "actions", "news", "contact"] as const;
+const links = ["about", "actions", "news", "contact"] as const;
 const text = (p: (typeof links)[number]) =>
   (p === "actions" || p === "news") && empty[p] ? d.sections.underConstructionShort : d.home.links[p];
 ---
 
-<Base lang={lang} page="home">
-  <section class="hero">
-    <h1 class="hero-title">REMEDY FOR ALL</h1>
-    <p class="lead">{d.purposeSentence}</p>
+<Base lang={lang} page="home" bands>
+  <section class="band hero">
+    <div class="hero-art">
+      <Picture
+        src={hero}
+        formats={["avif", "webp"]}
+        fallbackFormat="jpg"
+        widths={[800, 1600]}
+        sizes="100vw"
+        width={1600}
+        quality={72}
+        alt=""
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <h1><MarkedText text={d.home.heroHeadline} /></h1>
+        <p class="tagline" lang="en">{d.home.tagline}</p>
+        <a class="button" href={areasHref}>{d.home.heroCta}</a>
+      </div>
+    </div>
   </section>
-  <ul class="cards">
-    {
-      links.map((p) => (
-        <li class="card">
-          <a href={pathFor(lang, p)}>{d.pages[p].title}</a>
-          <p>{text(p)}</p>
-        </li>
-      ))
-    }
-  </ul>
+
+  <section class="band band-quote">
+    <Motif edge="top" side="left" />
+    <div class="container">
+      <p class="quote framed">{d.purposeSentence}</p>
+    </div>
+    <Motif edge="bottom" side="right" />
+  </section>
+
+  <section class="band">
+    <Shape corner="bottom-left" />
+    <div class="container">
+      <h2>{d.pages.whatWeDo.title}</h2>
+      <ul class="area-grid area-grid-compact">
+        {
+          d.areas.map((area) => (
+            <li class="card area">
+              <div class="card-media"><Icon name={area.icon} /></div>
+              <a href={`${pathFor(lang, "whatWeDo")}#${area.id}`}>{area.title}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <Motif edge="bottom" side="left" />
+  </section>
+
+  <section class="band">
+    <Shape corner="top-right" />
+    <div class="container">
+      <ul class="cards">
+        {
+          links.map((p) => (
+            <li class="card">
+              <a href={pathFor(lang, p)}>{d.pages[p].title}</a>
+              <p>{text(p)}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
 </Base>

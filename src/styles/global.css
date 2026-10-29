@@ -42,10 +42,13 @@
   --cream: #f6f7f0; /* light logo background; palette cream #F6F7F1 */
   --navy-band: #2e3a59; /* dark logo background; palette navy #2D3A5A */
   --navy: #2d3a5a; /* text, headings, links: 10.45:1 on cream */
+  --navy-dark: #1f2940; /* button hover */
   --blue: #3fa9f7; /* accents only */
+  --blue-tint: #e4f2fd; /* icon discs */
   --slate: #6d7a8a; /* borders and rules only: 4.06:1 on cream */
   --slate-text: #5a6676; /* secondary text, darkened slate: 5.42:1 on cream */
   --on-navy: #f9f9f9; /* text on the navy band: 10.69:1 */
+  --on-navy-muted: #d6dae0; /* links and secondary text on the navy band: 8.02:1 */
   --bg: var(--cream);
   --surface: #ffffff;
   --text: var(--navy);
@@ -53,7 +56,12 @@
   --accent: var(--navy);
   --border: #d5d9df;
   --focus: var(--navy);
-  --max: 46rem;
+  --max: 64rem; /* page width: header, bands, footer */
+  --measure: 46rem; /* reading width */
+  --radius: 12px; /* every card */
+  --shadow: 0 1px 2px rgba(45, 58, 90, 0.06), 0 6px 18px rgba(45, 58, 90, 0.08); /* every card */
+  --marker: #cfe8fd; /* heading highlight: navy on it 8.91:1 */
+  --slate-tint: #eceef1; /* paper-cut shapes on cream: muted text on it 5.02:1 */
   font-family: "Noto Sans", system-ui, "Segoe UI", Roboto, Arial, sans-serif;
   line-height: 1.6;
   color: var(--text);
@@ -78,11 +86,22 @@ body {
 
 main {
   flex: 1;
-  padding: 2.5rem 0 3.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The last band reaches the footer, so a motif on its bottom edge crosses that boundary. */
+main > .band:last-child {
+  flex: 1;
 }
 
 main:focus {
   outline: none;
+}
+
+/* Anchor targets clear the sticky header. */
+[id] {
+  scroll-margin-top: 10rem;
 }
 
 .container {
@@ -90,6 +109,26 @@ main:focus {
   max-width: var(--max);
   margin: 0 auto;
   padding: 0 1.25rem;
+}
+
+.container.narrow {
+  max-width: calc(var(--measure) + 2.5rem);
+}
+
+.measure {
+  max-width: var(--measure);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 h1,
@@ -101,6 +140,11 @@ h2 {
 h1 {
   font-size: clamp(1.75rem, 1.4rem + 1.6vw, 2.4rem);
   margin: 0 0 1rem;
+}
+
+h2 {
+  font-size: clamp(1.35rem, 1.2rem + 0.6vw, 1.6rem);
+  margin: 2rem 0 1rem;
 }
 
 p {
@@ -131,7 +175,7 @@ a:focus-visible {
   position: absolute;
   left: 1rem;
   top: -4rem;
-  z-index: 10;
+  z-index: 30;
   padding: 0.5rem 1rem;
   background: var(--accent);
   color: #ffffff;
@@ -141,8 +185,37 @@ a:focus-visible {
   top: 1rem;
 }
 
-/* Header */
+.skip-link:focus-visible {
+  outline-color: var(--blue);
+}
+
+/* Bands: page sections alternate cream and white. --band-bg feeds the offset frame's gap. */
+.band {
+  --band-bg: var(--cream);
+  position: relative;
+  padding: 3rem 0;
+  background: var(--band-bg);
+}
+
+main > .band:nth-child(even) {
+  --band-bg: var(--surface);
+}
+
+.band > .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header: sticky; compact once scrolled (a small script in Base.astro sets .is-compact).
+   Stays cream: the light logo's baked-in background. */
+#top-sentinel {
+  height: 1px;
+}
+
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   background: var(--cream);
   border-bottom: 3px solid var(--blue);
 }
@@ -154,16 +227,24 @@ a:focus-visible {
     "brand lang"
     "nav nav";
   align-items: center;
-  gap: 0.75rem 1.5rem;
-  padding-top: 1rem;
-  padding-bottom: 0.75rem;
+  gap: 0.4rem 1.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.5rem;
+  transition: padding 0.2s ease;
+}
+
+@media (min-width: 60rem) {
+  .header-inner {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "brand nav lang";
+  }
 }
 
 .header-inner nav {
   grid-area: nav;
 }
 
-.lang-switch {
+.site-header .lang-switch {
   grid-area: lang;
 }
 
@@ -176,23 +257,46 @@ a:focus-visible {
 
 .brand img {
   display: block;
-  width: 10.5rem;
+  width: 7.5rem;
   height: auto;
+  transition: width 0.2s ease;
 }
 
 @media (min-width: 40rem) {
   .brand img {
-    width: 13.5rem;
+    width: 9rem;
+  }
+}
+
+.site-header.is-compact .header-inner {
+  padding-top: 0.35rem;
+  padding-bottom: 0.3rem;
+}
+
+.site-header.is-compact .brand img {
+  width: 5.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-inner,
+  .brand img {
+    transition: none;
   }
 }
 
 .nav-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 1.25rem;
+  gap: 0.15rem 1.1rem;
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+@media (min-width: 60rem) {
+  .nav-list {
+    justify-content: center;
+  }
 }
 
 .nav-list a {
@@ -202,7 +306,7 @@ a:focus-visible {
 }
 
 .nav-list a:hover,
-.nav-list a[aria-current="page"] {
+.nav-list a[aria-current] {
   color: var(--accent);
   text-decoration: underline;
   text-decoration-color: var(--blue);
@@ -213,62 +317,379 @@ a:focus-visible {
   font-weight: 700;
 }
 
-.lang-switch a {
-  display: inline-block;
-  padding: 0.2rem 0.65rem;
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  text-decoration: none;
+/* Language switch: plain text "EL / EN", current language marked. */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.95rem;
-}
-
-.lang-switch a:hover {
-  background: var(--accent);
-  color: #ffffff;
-}
-
-/* Home */
-.hero {
-  padding: 1.5rem 0 1rem;
-}
-
-.hero-title {
-  font-size: clamp(2.2rem, 1.6rem + 3vw, 3.4rem);
   letter-spacing: 0.04em;
-  font-weight: 800;
+}
+
+.lang-switch a {
+  padding: 0.2rem 0.15rem;
+}
+
+.lang-current {
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--blue);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.3em;
+}
+
+.lang-sep {
+  color: var(--muted);
+}
+
+/* Graphic devices (REQ-REMD-014 addendum): line motif, paper-cut shapes, badges, quote band,
+   marker, offset frame. All decorative and aria-hidden; palette colours and tints only. */
+
+/* Line motif: straddles a band edge inside the empty padding, at the far side. */
+.motif {
+  position: absolute;
+  z-index: 2;
+  width: clamp(6.5rem, 16vw, 12rem);
+  height: auto;
+  aspect-ratio: 240 / 90;
+  color: var(--blue);
+  pointer-events: none;
+}
+
+.motif-top {
+  top: 0;
+  transform: translateY(-50%);
+}
+
+.motif-bottom {
+  bottom: 0;
+  transform: translateY(50%);
+}
+
+.motif-left {
+  left: 0;
+}
+
+.motif-right {
+  right: 0;
+}
+
+.motif-inline {
+  position: static;
+  transform: none;
+  width: 9rem;
+  flex: none;
+}
+
+/* Paper-cut shapes: clipped to their band so they never cause horizontal scroll. */
+.band-shapes {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.shape {
+  position: absolute;
+  width: clamp(14rem, 34vw, 28rem);
+  height: auto;
+  fill: var(--slate-tint);
+}
+
+main > .band:nth-child(even) .shape {
+  fill: var(--cream);
+}
+
+.shape-top-right {
+  top: -30%;
+  right: -8%;
+}
+
+.shape-bottom-left {
+  bottom: -35%;
+  left: -10%;
+  transform: rotate(160deg);
+}
+
+/* Marker highlight behind key words in main headings. */
+.marker {
+  /* Solid, not a gradient, so automated contrast checks can read it. */
+  background-color: var(--marker);
+  border-radius: 0.15em;
+  padding: 0 0.12em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Offset frame: a blue outline 10px down and right, behind one block per page. The inner shadow
+   repaints the band colour so only a 2px line shows. */
+.framed,
+.card.framed {
+  box-shadow: var(--shadow), 10px 10px 0 -2px var(--band-bg), 10px 10px 0 0 var(--blue);
+}
+
+/* Navy quote band on the home page. */
+.band-quote {
+  --band-bg: var(--navy-band);
+  color: var(--on-navy);
+  padding: 3.5rem 0;
+}
+
+main > .band.band-quote {
+  --band-bg: var(--navy-band);
+}
+
+.quote {
+  margin: 0 auto;
+  max-width: 50rem;
+  padding: 1.75rem 2rem;
+  border-radius: var(--radius);
+  font-size: clamp(1.2rem, 1rem + 1vw, 1.65rem);
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.band-quote .quote.framed {
+  box-shadow: 10px 10px 0 -2px var(--band-bg), 10px 10px 0 0 var(--blue);
+  outline: 1px solid rgba(249, 249, 249, 0.18);
+}
+
+/* Media slot: a badge now, room for a spot illustration later without changing the card. */
+.card-media {
+  line-height: 0;
+}
+
+/* Cards: one radius, one shadow. */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.35rem;
+}
+
+main > .band:nth-child(even) .card {
+  background: var(--cream);
+}
+
+main > .band:nth-child(even) .card.framed {
+  --band-bg: var(--surface);
 }
 
 .cards {
   list-style: none;
-  margin: 1.5rem 0 0;
+  margin: 0;
   padding: 0;
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
 }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+.cards .card {
   border-top: 4px solid var(--blue);
-  border-radius: 8px;
-  padding: 1.1rem 1.25rem;
 }
 
-.card a {
+.cards a {
   font-weight: 700;
   font-size: 1.1rem;
 }
 
-.card p {
+.cards p {
   margin: 0.4rem 0 0;
   color: var(--muted);
 }
 
-/* About */
+/* Home hero: the illustration fills the band; text on its cream left half. Below 48rem the text
+   sits on cream and the illustration follows, faded in from cream. */
+.hero {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-text {
+  padding: 2.25rem 0 1.5rem;
+}
+
+.hero-text h1 {
+  font-size: clamp(1.6rem, 1.1rem + 1.8vw, 2.5rem);
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.tagline {
+  font-size: 1.2rem;
+  /* Navy, not muted: over the illustration's waves at mid widths, muted text drops below 4.5:1. */
+  color: var(--navy);
+  letter-spacing: 0.02em;
+  margin-bottom: 1.5rem;
+}
+
+.hero-art {
+  position: relative;
+  height: 12rem;
+}
+
+.hero-art::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 45%;
+  background: linear-gradient(var(--cream), rgba(246, 247, 240, 0));
+  z-index: 1;
+}
+
+.hero-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 78% 50%;
+}
+
+.hero .hero-art {
+  order: 2;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 48rem) {
+  .hero {
+    display: block;
+    min-height: clamp(24rem, 42vw, 34rem);
+  }
+
+  .hero-art {
+    position: absolute;
+    inset: 0;
+    height: auto;
+  }
+
+  .hero-art::before {
+    display: none;
+  }
+
+  .hero-art img {
+    object-position: right center;
+  }
+
+  .hero-inner {
+    display: flex;
+    align-items: center;
+    min-height: clamp(24rem, 42vw, 34rem);
+  }
+
+  /* Keep the text on the plain cream left part of the illustration (left of about 42%). */
+  .hero-text {
+    width: min(28rem, calc(42vw - max(0px, (100vw - var(--max)) / 2) - 1.25rem));
+    padding: 2.5rem 0;
+  }
+}
+
+.button {
+  display: inline-block;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: var(--navy-dark);
+}
+
+/* Areas of work */
+.area-grid {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+}
+
+.area h2 {
+  font-size: 1.15rem;
+  margin: 0.75rem 0 0.4rem;
+}
+
+.area p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--blue-tint);
+  color: var(--navy);
+}
+
+.icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.area-grid-compact {
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.area-grid-compact .area {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1.1rem;
+}
+
+.area-grid-compact .icon {
+  flex: none;
+}
+
+.area-grid-compact a {
+  font-weight: 700;
+}
+
+/* About and contact */
 .facts {
-  margin: 1.5rem 0;
-  border-top: 1px solid var(--border);
+  margin: 1.5rem 0 2rem;
+}
+
+.facts.card {
+  padding: 0.25rem 1.35rem;
+}
+
+.facts > div:last-child {
+  border-bottom: none;
+}
+
+.contact-fields dt {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.contact-fields .icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+}
+
+.contact-fields .icon svg {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .facts > div {
@@ -299,7 +720,7 @@ a:focus-visible {
   }
 }
 
-/* What we do */
+/* What we do: the full statutory list */
 .purposes {
   padding-left: 1.25rem;
   margin: 0 0 1.5rem;
@@ -315,15 +736,24 @@ a:focus-visible {
   font-style: italic;
 }
 
-/* Actions and news */
+/* Actions and news: the under-construction note carries a badge and the line motif. */
+.uc-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  margin: 0.75rem 0 1.5rem;
+  padding: 1.5rem 1.5rem;
+}
+
 .under-construction {
-  margin: 0.5rem 0 0;
-  padding: 1rem 1.25rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--blue);
-  border-radius: 4px;
-  font-size: 1.1rem;
+  flex: 1 1 14rem;
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.entry.card {
+  padding: 1.5rem 1.75rem;
 }
 
 .entries {
@@ -354,26 +784,37 @@ a:focus-visible {
   margin: 0;
 }
 
-/* Footer: navy band with the dark logo, then a white strip with the supporter credit. */
+/* Footer: one navy band (the dark logo's own background) with identity, credit and switch. */
 .site-footer {
-  font-size: 0.9rem;
+  background: var(--navy-band);
+  color: var(--on-navy);
+  font-size: 0.92rem;
+  padding: 3rem 0 2.25rem;
 }
 
 .site-footer p {
   margin: 0;
 }
 
-.footer-band {
-  background: var(--navy-band);
+.site-footer a {
   color: var(--on-navy);
-  padding: 1.25rem 0 1.5rem;
+}
+
+.site-footer a:focus-visible {
+  outline-color: var(--on-navy);
 }
 
 .footer-inner {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.5rem;
+  justify-content: space-between;
+  gap: 1.5rem 2.5rem;
+}
+
+.footer-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .footer-logo {
@@ -382,10 +823,15 @@ a:focus-visible {
   height: auto;
 }
 
-.footer-credit {
-  background: var(--surface);
-  color: var(--muted);
-  padding: 1rem 0;
+.legal {
+  line-height: 1.5;
+}
+
+.footer-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 .credit {
@@ -393,17 +839,30 @@ a:focus-visible {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 0.75rem;
+  color: var(--on-navy-muted);
 }
 
 .credit a {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
-  color: var(--navy);
 }
 
-.credit img {
+.logo-chip {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  background: #ffffff;
+  border-radius: 8px;
+  line-height: 0;
+}
+
+.logo-chip img {
   display: block;
-  width: 8.5rem;
+  width: 8rem;
   height: auto;
+}
+
+.site-footer .lang-sep {
+  color: var(--on-navy-muted);
 }

@@ -53,14 +53,27 @@ project and survive `adapt` reruns and kit updates.
   dark one on `--navy-band` `#2E3A59`, their baked-in backgrounds, or the image edge shows.
 - **Palette roles:** navy `#2D3A5A` for text and links; `#5A6676` (darkened slate) for secondary
   text; slate `#6D7A8A` for borders only; blue `#3FA9F7` for non-text accents only (it fails 4.5:1).
-- **Footer:** navy band (dark logo, legal line), then a white strip with the CSSA supporter credit
-  (link to https://www.csl.gr). No other claim about CSSA.
+- **Footer:** one navy band: dark logo, legal line on two lines, the CSSA supporter credit with its
+  logo on a white chip (link to https://www.csl.gr), and the `EL / EN` switch. No other claim
+  about CSSA.
 - **Actions and News:** content collections in `src/content.config.ts` (`glob` over
   `src/content/<section>/*.md`; frontmatter title, date, language, summary; Markdown body). Empty
   for now: the landing pages show the shared `UnderConstruction` statement. With entries, the
   landing lists that language's entries newest first and `src/pages/[en/]<section>/[slug].astro`
   builds one page each. `CONTENT_ROOT` (test only) points the loader at `tests/fixtures/content`.
   Never add an entry that a request did not supply.
+- **Design (REQ-REMD-014):**
+  - Home: illustrated hero (`astro:assets` `<Picture>`, `src/assets/hero-banner.jpg`), navy quote
+    band, six area cards, page cards.
+  - What we do: six icon cards (`d.areas`), then the full statutory list.
+  - Header: sticky and compact on scroll (small inline script in `Base.astro`), logo cropped above
+    its tagline (`remedy-logo-light-header.png`), `EL / EN` switch, repeated in the footer.
+  - Footer: one navy band.
+  - Bands alternate cream and white (`section.band`).
+  - Graphic devices: line motif, paper-cut shapes, round badges, marker (`[...]` in heading
+    strings), offset frame. Decorative only, palette colours and tints only, no motion.
+  - Hero text over the image is checked from pixels, since axe cannot judge it.
+- **Icons:** Lucide 1.64.0 (ISC) in `src/icons/`, inlined by `Icon.astro`.
 - **Font:** Noto Sans variable, self-hosted in `public/fonts/` (OFL 1.1), latin and greek subsets.
 - **Tests:** `tests/site.test.mjs`, Node's built-in runner, run against `dist/` after a build.
 - **Workflows:** `.github/workflows/ci.yml` (gates on every push and PR) and

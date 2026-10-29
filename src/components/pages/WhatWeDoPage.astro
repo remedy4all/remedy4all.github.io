@@ -1,5 +1,9 @@
 ---
 import Base from "../../layouts/Base.astro";
+import Icon from "../Icon.astro";
+import MarkedText from "../MarkedText.astro";
+import Motif from "../Motif.astro";
+import Shape from "../Shape.astro";
 import { t, type Lang } from "../../i18n";
 
 interface Props {
@@ -10,12 +14,38 @@ const { lang } = Astro.props;
 const d = t(lang);
 ---
 
-<Base lang={lang} page="whatWeDo">
-  <h1>{d.pages.whatWeDo.title}</h1>
-  <p class="lead">{d.purposeSentence}</p>
-  <p>{d.whatWeDo.listIntro}</p>
-  <ul class="purposes">
-    {d.whatWeDo.purposes.map((purpose) => <li>{purpose}</li>)}
-  </ul>
-  <p class="note">{d.whatWeDo.indicative}</p>
+<Base lang={lang} page="whatWeDo" bands>
+  <section class="band">
+    <Shape corner="top-right" />
+    <div class="container">
+      <h1><MarkedText text={d.pages.whatWeDo.heading ?? d.pages.whatWeDo.title} /></h1>
+      <p class="lead measure">{d.purposeSentence}</p>
+      <ul class="area-grid" id="areas">
+        {
+          d.areas.map((area) => (
+            <li class="card area" id={area.id}>
+              <div class="card-media"><Icon name={area.icon} /></div>
+              <h2>{area.title}</h2>
+              <p>{area.line}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="band">
+    <Shape corner="bottom-left" />
+    <div class="container narrow">
+      <h2>{d.whatWeDo.statuteHeading}</h2>
+      <div class="card framed">
+        <p>{d.whatWeDo.listIntro}</p>
+        <ul class="purposes">
+          {d.whatWeDo.purposes.map((purpose) => <li>{purpose}</li>)}
+        </ul>
+        <p class="note">{d.whatWeDo.indicative}</p>
+      </div>
+    </div>
+    <Motif edge="bottom" side="right" />
+  </section>
 </Base>

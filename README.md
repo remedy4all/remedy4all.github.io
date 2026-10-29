@@ -27,6 +27,26 @@ While a value still starts with `__PLACEHOLDER`, the contact page shows «Σύν
 replace its placeholder with the real value and rebuild: an email becomes a `mailto:` link, a
 phone a `tel:` link, and an address plain text.
 
+## Design
+
+- **Hero image.** `src/assets/hero-banner.jpg` (3168 x 1344, supplied by him). Astro's `<Picture>`
+  serves it as AVIF and WebP at 800 and 1600 px, with a JPEG fallback, each file well under
+  250 KB (a test enforces the limit). It is decorative (`alt=""`). The headline sits on the
+  image's plain cream left part on wide screens; below 48rem the image follows the text, faded in
+  from cream.
+- **Icons.** [Lucide](https://lucide.dev) 1.64.0, **ISC licence** (`src/icons/LICENSE`). The
+  SVGs used are copied into `src/icons/` and inlined by `src/components/Icon.astro`, so nothing is
+  fetched from another site.
+- **Graphic devices**, the same few everywhere, all `aria-hidden`:
+  - `Motif.astro`: a thin blue line motif crossing section boundaries.
+  - `Shape.astro`: paper-cut background shapes.
+  - Round icon badges.
+  - The home page's navy quote band.
+  - `MarkedText.astro`: a pale-blue marker behind words written `[like this]` in a heading string.
+  - `.framed`: an offset blue frame.
+- **Cards** share one radius and one shadow (`--radius`, `--shadow` in `src/styles/global.css`).
+  Each card's `.card-media` slot holds a badge now and can take a spot illustration later.
+
 ## Actions and News
 
 Both sections are content collections defined in `src/content.config.ts`, one Markdown file per
@@ -95,6 +115,9 @@ request.
 |---|---|
 | `src/i18n/el.ts`, `src/i18n/en.ts` | All page text. Greek first; English translates it |
 | `src/components/pages/` | The page bodies, shared by both languages |
+| `src/components/` | Header, footer, language switch, icon, motif, shape, marker, under-construction note |
+| `src/assets/hero-banner.jpg` | Hero illustration source, optimised at build time |
+| `src/icons/` | Lucide icons (ISC), self-hosted |
 | `src/content.config.ts`, `src/content/` | The actions and news collections (empty) |
 | `src/lib/entries.ts` | A section's entries in one language, newest first |
 | `src/pages/`, `src/pages/en/` | Routes: one thin file per page and language |

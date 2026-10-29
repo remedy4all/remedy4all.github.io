@@ -3,6 +3,31 @@
 All notable changes to the site. Versions follow [Semantic Versioning](https://semver.org/); each
 release is tagged `vX.Y.Z`.
 
+## [0.4.0] - 2026-10-29
+
+Design pass (REQ-REMD-014, including its graphics addendum).
+
+### Added
+- Home hero with his illustration: the headline «Προστατεύουμε και στηρίζουμε ευάλωτες ομάδες του
+  πληθυσμού.» / "We protect and support vulnerable groups.", «Together in Support» as text, and a
+  link to the areas of work. AVIF and WebP at 800 and 1600 px, with a JPEG fallback.
+- Six icon cards for the areas of work, written from the statute, on What we do (above the full
+  statutory list, now under «Όπως ορίζει το καταστατικό» / "As set out in the statute") and on
+  the home page.
+- A navy quote band on the home page carrying the purpose sentence.
+- Graphic devices throughout: a thin blue line motif crossing section boundaries, paper-cut
+  background shapes, round icon badges (also on the contact fields and the under-construction
+  notes), a pale-blue marker in each main heading, and an offset blue frame on one block per page.
+
+### Changed
+- The header is lighter and sticky, compacting on scroll, with the logo cropped above its tagline.
+  The language switch is plain text «EL / EN» with the current language marked, top right and
+  again in the footer.
+- The footer is a single navy band, holding the legal line on two lines and the CSSA credit (logo
+  on a light chip).
+- Page sections alternate cream and white bands, and all cards share one radius and shadow.
+- The large «REMEDY FOR ALL» heading on the home page is replaced by the hero.
+
 ## [0.3.0] - 2026-10-29
 
 Actions and News sections (REQ-REMD-013).

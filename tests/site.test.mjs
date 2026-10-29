@@ -2,7 +2,7 @@
 // They enforce the site's content, language and privacy rules on what visitors actually get.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { SITE_URL } from "../site.config.mjs";
 
@@ -58,7 +58,8 @@ test("actions and news landing pages: heading and under-construction statement o
   for (const [path, heading, statement] of cases) {
     const html = read(path);
     const main = html.match(/<main\b[\s\S]*?<\/main>/)[0];
-    assert.match(main, new RegExp(`<h1>${heading}</h1>\\s*<p class="under-construction">${statement}\\.</p>`));
+    assert.match(main, new RegExp(`<h1><span class="marker">${heading}</span></h1>`));
+    assert.match(main, new RegExp(`<div class="uc-note card framed">[\\s\\S]*?<svg aria-hidden="true"[\\s\\S]*?<p class="under-construction">${statement}\\.</p>\\s*<svg class="motif motif-inline`));
     assert.equal(visibleText(main).trim(), `${heading} ${statement}.`, `${path} must say nothing else`);
   }
 });
@@ -166,17 +167,77 @@ test("contact pages: each placeholder field reads coming soon", () => {
   assert.equal(count(read("/en/contact/"), "Coming soon"), 3);
 });
 
-for (const { lang, path } of ALL) {
+for (const { lang, path, counterpart } of ALL) {
   test(`${path}: logo in header and footer, supporter credit in the page's language`, () => {
     const html = read(path);
     const header = html.match(/<header[\s\S]*?<\/header>/)[0];
-    assert.match(header, new RegExp(`<a class="brand" href="${lang === "el" ? "/" : "/en/"}">\\s*<img src="/brand/remedy-logo-light.png"[^>]*alt="Remedy for All"`));
+    assert.match(header, new RegExp(`<a class="brand" href="${lang === "el" ? "/" : "/en/"}">\\s*<img src="/brand/remedy-logo-light-header.png"[^>]*alt="Remedy for All"`));
     const footer = html.match(/<footer[\s\S]*?<\/footer>/)[0];
     assert.match(footer, /src="\/brand\/remedy-logo-dark.png"/);
-    assert.match(footer, /<a href="https:\/\/www\.csl\.gr">\s*<img src="\/brand\/cssa-logo.png"/);
+    assert.match(footer, /<a href="https:\/\/www\.csl\.gr">\s*<span class="logo-chip"><img src="\/brand\/cssa-logo.png"/);
     assert.match(visibleText(footer), new RegExp(`${lang === "el" ? "Με την υποστήριξη της" : "Supported by"} Computer Solutions S\\.A\\.`));
+    assert.match(footer, /<p class="legal">[^<]+<br>[^<]+<\/p>/, "legal line on two lines");
+    assert.doesNotMatch(html, /footer-credit/, "the credit sits inside the navy band");
+  });
+
+  test(`${path}: EL / EN switch in header and footer, current language marked`, () => {
+    const html = read(path);
+    const other = lang === "el" ? "en" : "el";
+    for (const part of [html.match(/<header[\s\S]*?<\/header>/)[0], html.match(/<footer[\s\S]*?<\/footer>/)[0]]) {
+      const sw = part.match(/<div class="lang-switch"[\s\S]*?<\/div>/)[0];
+      assert.match(sw, new RegExp(`<span class="lang-current" aria-current="true" lang="${lang}">${lang.toUpperCase()}</span>`));
+      assert.match(sw, new RegExp(`<a href="${counterpart}" lang="${other}" hreflang="${other}">${other.toUpperCase()}`));
+      const shown = visibleText(sw.replace(/<span class="sr-only">[\s\S]*?<\/span>/g, "")).trim();
+      assert.equal(shown, "EL / EN");
+    }
   });
 }
+
+test("home hero: headline, tagline as text, link to the cards, decorative responsive image", () => {
+  for (const [path, headline, cta, href] of [
+    ["/", "Προστατεύουμε και στηρίζουμε ευάλωτες ομάδες του πληθυσμού.", "Τι κάνουμε", "/what-we-do/#areas"],
+    ["/en/", "We protect and support vulnerable groups.", "What we do", "/en/what-we-do/#areas"],
+  ]) {
+    const html = read(path);
+    const hero = html.match(/<section class="band hero">[\s\S]*?<\/section>/)[0];
+    const h1 = hero.match(/<h1>([\s\S]*?)<\/h1>/)[1];
+    assert.equal(h1.replace(/<[^>]+>/g, "").trim(), headline);
+    assert.match(h1, /<span class="marker">[^<]+<\/span>/, "key words are marked");
+    assert.match(hero, /<p class="tagline" lang="en">Together in Support<\/p>/);
+    assert.match(hero, new RegExp(`<a class="button" href="${href}">${cta}</a>`));
+    assert.match(hero, /<source srcset="[^"]+\.avif 800w, [^"]+\.avif 1600w" type="image\/avif"/);
+    assert.match(hero, /<source srcset="[^"]+\.webp 800w, [^"]+\.webp 1600w" type="image\/webp"/);
+    assert.match(hero, /<img src="[^"]+\.jpg"[^>]* alt(="")?[ >][^>]*width="1600" height="679"/);
+    assert.doesNotMatch(html, /hero-title|<h1>REMEDY FOR ALL<\/h1>/, "the old large name heading is gone");
+    assert.equal((html.match(/<section class="band/g) || []).length, 4, "hero, quote, areas, links");
+  }
+});
+
+test("hero image files are 250 KB or less", () => {
+  const dir = join(DIST, "_astro");
+  const files = readdirSync(dir).filter((f) => f.startsWith("hero-banner"));
+  assert.ok(files.some((f) => f.endsWith(".avif")) && files.some((f) => f.endsWith(".webp")) && files.some((f) => f.endsWith(".jpg")));
+  for (const f of files) assert.ok(statSync(join(dir, f)).size <= 250 * 1024, `${f} is over 250 KB`);
+});
+
+test("what we do: six icon cards above the full statutory list, in both languages", () => {
+  for (const [path, heading] of [["/what-we-do/", "Όπως ορίζει το καταστατικό"], ["/en/what-we-do/", "As set out in the statute"]]) {
+    const html = read(path);
+    const cards = [...html.matchAll(/<li class="card area" id="(area-\d)">\s*<div class="card-media"><span class="icon"><!--[^>]*-->\s*<svg aria-hidden="true"[\s\S]*?<\/svg>\s*<\/span><\/div>\s*<h2>([^<]+)<\/h2>\s*<p>([^<]+)<\/p>/g)];
+    assert.deepEqual(cards.map((m) => m[1]), ["area-1", "area-2", "area-3", "area-4", "area-5", "area-6"], path);
+    const statute = html.indexOf(`<h2>${heading}</h2>`);
+    assert.ok(statute > html.lastIndexOf('class="card area"'), "full list comes after the cards");
+    const list = html.slice(statute).match(/<ul class="purposes"[^>]*>([\s\S]*?)<\/ul>/);
+    assert.equal((list[1].match(/<li/g) || []).length, 11);
+  }
+});
+
+test("home links to each of the six cards", () => {
+  for (const [path, base] of [["/", "/what-we-do/"], ["/en/", "/en/what-we-do/"]]) {
+    const html = read(path);
+    for (let i = 1; i <= 6; i++) assert.ok(html.includes(`href="${base}#area-${i}"`), `${path} → area-${i}`);
+  }
+});
 
 test("site URL is https://remedy4all.github.io", () => {
   assert.equal(SITE_URL, "https://remedy4all.github.io");
@@ -193,4 +254,38 @@ test("robots.txt points at the sitemap", () => {
   const txt = readFileSync(join(DIST, "robots.txt"), "utf8");
   assert.match(txt, /User-agent: \*/);
   assert.ok(txt.includes(`Sitemap: ${SITE_URL}/sitemap.xml`));
+});
+
+// Graphic devices (REQ-REMD-014 addendum). All decorative: hidden from assistive technology.
+const motifsCrossing = (html) => (html.match(/<svg class="motif motif-(?:top|bottom) /g) || []).length;
+
+test("home: navy quote band with the purpose sentence, framed, crossed by the line motif", () => {
+  for (const [path, sentence] of [["/", "Σκοπός της REMEDY FOR ALL"], ["/en/", "The purpose of REMEDY FOR ALL"]]) {
+    const html = read(path);
+    const quote = html.match(/<section class="band band-quote">[\s\S]*?<\/section>/)[0];
+    assert.match(quote, new RegExp(`<p class="quote framed">${sentence}`));
+    assert.equal(motifsCrossing(quote), 2, "motif crosses both edges of the quote band");
+    assert.ok(motifsCrossing(html) >= 3, "at least two section boundaries crossed on home");
+  }
+});
+
+for (const { path } of ALL) {
+  test(`${path}: decorations are hidden from assistive technology, and devices are present`, () => {
+    const html = read(path);
+    const main = html.match(/<main\b[\s\S]*?<\/main>/)[0];
+    for (const svg of main.match(/<svg\b[^>]*>/g) || []) assert.match(svg, /aria-hidden="true"/, svg);
+    for (const div of main.match(/<div class="band-shapes"[^>]*>/g) || []) assert.match(div, /aria-hidden="true"/);
+    assert.ok(motifsCrossing(main) >= 1, "line motif crosses at least one section boundary");
+    assert.match(main, /class="band-shapes"/, "paper-cut shape present");
+    assert.match(main, /<h1>[\s\S]*?<span class="marker">[^<]+<\/span>[\s\S]*?<\/h1>/, "marker in the main heading");
+    assert.match(main, /class="[^"]*\bframed\b/, "one framed block");
+  });
+}
+
+test("contact fields carry icon badges", () => {
+  for (const path of ["/contact/", "/en/contact/"]) {
+    const dts = read(path).match(/<dt>[\s\S]*?<\/dt>/g);
+    assert.equal(dts.length, 3);
+    for (const dt of dts) assert.match(dt, /<span class="icon">[\s\S]*?<svg aria-hidden="true"/);
+  }
 });
