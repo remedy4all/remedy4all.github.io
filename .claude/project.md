@@ -12,15 +12,15 @@
 
 <!-- CORE:AUTODETECT:START -->
 **Project:** remedy-for-all-web
-**Type:** Unknown
-**Package manager:** n/a
+**Type:** Node.js
+**Package manager:** npm
 
 | Task | Command |
 |------|---------|
-| Test | `(configure in Toolchain overrides)` |
-| Lint | `(configure in Toolchain overrides)` |
-| Type check | `(configure in Toolchain overrides)` |
-| Build | `(configure in Toolchain overrides)` |
+| Test | `npm test` |
+| Lint | `npm run lint` |
+| Type check | `npm run typecheck` |
+| Build | `npm run build` |
 
 _Auto-detected 2026-10-29. Override any wrong value under "Toolchain overrides" below._
 <!-- CORE:AUTODETECT:END -->
@@ -36,8 +36,19 @@ project and survive `adapt` reruns and kit updates.
   company. Static, bilingual: Greek primary, English second. No backend, no database, no forms.
 - **Stack:** Astro static site generator, npm, TypeScript (strict). Same approach as the CYCLOS
   project site CSSA maintains.
-- **Status:** the site itself is built by REQ-REMD-001. Until then this repository holds only the
-  agent kit, OpenSpec and CI.
+- **Pages:** home, about, what we do, contact, in Greek at `/` and English at `/en/`
+  (`trailingSlash: "always"`). Shared slugs, so the language switch swaps the `/en` prefix.
+- **Layout of the code:** all text in `src/i18n/el.ts` and `src/i18n/en.ts` (typed by
+  `src/i18n/types.ts`, so a missing translation fails the type check); page bodies in
+  `src/components/pages/`; thin route files in `src/pages/` and `src/pages/en/`; head metadata,
+  header and footer in `src/layouts/Base.astro` and `src/components/`; all CSS in
+  `src/styles/global.css`; `sitemap.xml` and `robots.txt` as endpoints in `src/pages/`.
+- **The one setting:** `site.config.mjs` holds `GITHUB_ORG`; `SITE_URL` (`https://<org>.github.io`)
+  is derived from it and feeds `astro.config.mjs`, canonicals, sitemap and robots.
+- **Font:** Noto Sans variable, self-hosted in `public/fonts/` (OFL 1.1), latin and greek subsets.
+- **Tests:** `tests/site.test.mjs`, Node's built-in runner, run against `dist/` after a build.
+- **Workflows:** `.github/workflows/ci.yml` (gates on every push and PR) and
+  `.github/workflows/deploy.yml` (gates, then deploy to Pages on push to `main`).
 - **Hosting:** GitHub Pages, deployed by GitHub Actions on push to `main`. The repository is meant
   to be the organisation's user-site repository, `<org>/<org>.github.io`, served at the root with
   no base path.

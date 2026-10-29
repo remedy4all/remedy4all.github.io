@@ -1,0 +1,21 @@
+---
+import Base from "../../layouts/Base.astro";
+import { t, type Lang } from "../../i18n";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const d = t(lang);
+---
+
+<Base lang={lang} page="whatWeDo">
+  <h1>{d.pages.whatWeDo.title}</h1>
+  <p class="lead">{d.purposeSentence}</p>
+  <p>{d.whatWeDo.listIntro}</p>
+  <ul class="purposes">
+    {d.whatWeDo.purposes.map((purpose) => <li>{purpose}</li>)}
+  </ul>
+  <p class="note">{d.whatWeDo.indicative}</p>
+</Base>

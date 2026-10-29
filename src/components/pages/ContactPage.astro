@@ -1,0 +1,16 @@
+---
+import Base from "../../layouts/Base.astro";
+import { t, type Lang } from "../../i18n";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const d = t(lang);
+---
+
+<Base lang={lang} page="contact">
+  <h1>{d.pages.contact.title}</h1>
+  <p class="lead">{d.contact.comingSoon}</p>
+</Base>

@@ -1,0 +1,29 @@
+---
+import Base from "../../layouts/Base.astro";
+import { pathFor, t, type Lang } from "../../i18n";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const d = t(lang);
+const links = ["about", "whatWeDo", "contact"] as const;
+---
+
+<Base lang={lang} page="home">
+  <section class="hero">
+    <h1 class="hero-title">REMEDY FOR ALL</h1>
+    <p class="lead">{d.purposeSentence}</p>
+  </section>
+  <ul class="cards">
+    {
+      links.map((p) => (
+        <li class="card">
+          <a href={pathFor(lang, p)}>{d.pages[p].title}</a>
+          <p>{d.home.links[p]}</p>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

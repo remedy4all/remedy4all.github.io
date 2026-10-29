@@ -1,0 +1,34 @@
+---
+import { PAGES, otherLang, pathFor, t, type Lang, type PageKey } from "../i18n";
+
+interface Props {
+  lang: Lang;
+  page: PageKey;
+}
+
+const { lang, page } = Astro.props;
+const d = t(lang);
+const other = otherLang(lang);
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="wordmark" href={pathFor(lang, "home")}>REMEDY FOR ALL</a>
+    <nav aria-label={d.navLabel}>
+      <ul class="nav-list">
+        {
+          PAGES.map((p) => (
+            <li>
+              <a href={pathFor(lang, p)} aria-current={p === page ? "page" : undefined}>
+                {d.pages[p].title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="lang-switch" role="group" aria-label={d.switchLabel}>
+      <a href={pathFor(other, page)} lang={other} hreflang={other}>{t(other).languageName}</a>
+    </div>
+  </div>
+</header>

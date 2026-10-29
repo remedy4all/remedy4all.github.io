@@ -1,0 +1,31 @@
+---
+import Base from "../../layouts/Base.astro";
+import { pathFor, t, type Lang } from "../../i18n";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const d = t(lang);
+const fields = Object.values(d.about.fields);
+---
+
+<Base lang={lang} page="about">
+  <h1>{d.pages.about.title}</h1>
+  <p class="lead">{d.about.intro}</p>
+  <dl class="facts">
+    {
+      fields.map(([term, value]) => (
+        <div>
+          <dt>{term}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+  <p>{d.about.nameAbroad}</p>
+  <p>
+    {d.about.purposesSetBy} <a href={pathFor(lang, "whatWeDo")}>{d.about.purposesLink}</a>
+  </p>
+</Base>

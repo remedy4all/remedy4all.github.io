@@ -1,0 +1,300 @@
+/* Noto Sans, SIL Open Font License 1.1 (public/fonts/OFL.txt). Self-hosted, variable weight. */
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/noto-sans-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/noto-sans-latin-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/noto-sans-greek-wght-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/noto-sans-greek-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --text: #1b1f24;
+  --muted: #4a5562;
+  --accent: #1d3557;
+  --border: #d9dde3;
+  --focus: #1d3557;
+  --max: 46rem;
+  font-family: "Noto Sans", system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  font-size: 1.0625rem;
+}
+
+main {
+  flex: 1;
+  padding: 2.5rem 0 3.5rem;
+}
+
+main:focus {
+  outline: none;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+h1,
+h2 {
+  line-height: 1.25;
+  color: var(--accent);
+}
+
+h1 {
+  font-size: clamp(1.75rem, 1.4rem + 1.6vw, 2.4rem);
+  margin: 0 0 1rem;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+.lead {
+  font-size: 1.15rem;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 10;
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Header */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "brand lang"
+    "nav nav";
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 0.75rem;
+}
+
+.header-inner nav {
+  grid-area: nav;
+}
+
+.lang-switch {
+  grid-area: lang;
+}
+
+.wordmark {
+  grid-area: brand;
+  justify-self: start;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  font-size: 1.2rem;
+  text-decoration: none;
+  color: var(--accent);
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-list a {
+  text-decoration: none;
+  color: var(--text);
+  padding: 0.25rem 0;
+}
+
+.nav-list a:hover,
+.nav-list a[aria-current="page"] {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.nav-list a[aria-current="page"] {
+  font-weight: 700;
+}
+
+.lang-switch a {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.lang-switch a:hover {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+/* Home */
+.hero {
+  padding: 1.5rem 0 1rem;
+}
+
+.hero-title {
+  font-size: clamp(2.2rem, 1.6rem + 3vw, 3.4rem);
+  letter-spacing: 0.04em;
+  font-weight: 800;
+}
+
+.cards {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.1rem 1.25rem;
+}
+
+.card a {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.card p {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+}
+
+/* About */
+.facts {
+  margin: 1.5rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.facts > div {
+  display: grid;
+  grid-template-columns: minmax(9rem, 14rem) 1fr;
+  gap: 0.25rem 1.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.facts dt {
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+@media (max-width: 34rem) {
+  .facts > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* What we do */
+.purposes {
+  padding-left: 1.25rem;
+  margin: 0 0 1.5rem;
+}
+
+.purposes li {
+  margin-bottom: 0.75rem;
+  padding-left: 0.25rem;
+}
+
+.note {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Footer */
+.site-footer {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 1.25rem 0;
+}
+
+.site-footer p {
+  margin: 0;
+}

@@ -12,8 +12,6 @@ permissions:
 jobs:
   gates:
     runs-on: ubuntu-latest
-    # The site arrives with REQ-REMD-001; until there is a lockfile there is nothing to check.
-    if: hashFiles('package-lock.json') != ''
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
           cache: "npm"
 
       - name: Install dependencies
