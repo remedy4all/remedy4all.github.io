@@ -2,7 +2,7 @@
 // They enforce the site's content, language and privacy rules on what visitors actually get.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { SITE_URL } from "../site.config.mjs";
 
@@ -12,6 +12,8 @@ const PAGES = [
   { el: "/", en: "/en/" },
   { el: "/about/", en: "/en/about/" },
   { el: "/what-we-do/", en: "/en/what-we-do/" },
+  { el: "/actions/", en: "/en/actions/" },
+  { el: "/news/", en: "/en/news/" },
   { el: "/contact/", en: "/en/contact/" },
 ];
 const ALL = PAGES.flatMap((p) => [
@@ -34,13 +36,59 @@ test("dist exists (run npm run build first)", () => {
   assert.ok(existsSync(join(DIST, "index.html")), "dist/index.html missing");
 });
 
+test("exactly twelve pages are built, and no entry pages", () => {
+  const pages = [];
+  const walk = (dir, rel) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (e.isDirectory()) walk(join(dir, e.name), `${rel}${e.name}/`);
+      else if (e.name.endsWith(".html")) pages.push(rel + e.name);
+    }
+  };
+  walk(DIST, "/");
+  assert.deepEqual(pages.map((p) => p.replace(/index\.html$/, "")).sort(), ALL.map((p) => p.path).sort());
+});
+
+test("actions and news landing pages: heading and under-construction statement only", () => {
+  const cases = [
+    ["/actions/", "Δράσεις", "Η ενότητα είναι υπό κατασκευή"],
+    ["/news/", "Νέα", "Η ενότητα είναι υπό κατασκευή"],
+    ["/en/actions/", "Actions", "This section is under construction"],
+    ["/en/news/", "News", "This section is under construction"],
+  ];
+  for (const [path, heading, statement] of cases) {
+    const html = read(path);
+    const main = html.match(/<main\b[\s\S]*?<\/main>/)[0];
+    assert.match(main, new RegExp(`<h1>${heading}</h1>\\s*<p class="under-construction">${statement}\\.</p>`));
+    assert.equal(visibleText(main).trim(), `${heading} ${statement}.`, `${path} must say nothing else`);
+  }
+});
+
+test("no page shows an item or a date", () => {
+  for (const { path } of ALL) {
+    const html = read(path);
+    assert.doesNotMatch(html, /<time\b|class="entries"|class="entry"/, path);
+  }
+});
+
+test("home pages mark actions and news as under construction", () => {
+  for (const [path, soon, labels] of [
+    ["/", "Υπό κατασκευή.", ["Δράσεις", "Νέα"]],
+    ["/en/", "Under construction.", ["Actions", "News"]],
+  ]) {
+    const html = read(path);
+    for (const label of labels) {
+      assert.match(html, new RegExp(`<li class="card">\\s*<a href="[^"]+">${label}</a>\\s*<p>${soon}</p>`), `${path} ${label}`);
+    }
+  }
+});
+
 for (const { lang, path, counterpart } of ALL) {
   test(`${path}: language, navigation and switch`, () => {
     const html = read(path);
     assert.match(html, new RegExp(`<html lang="${lang}"`));
-    for (const target of NAV[lang]) {
-      assert.ok(html.includes(`href="${target}"`), `nav link to ${target} missing`);
-    }
+    const nav = html.match(/<nav\b[\s\S]*?<\/nav>/)[0];
+    const order = [...nav.matchAll(/<a href="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(order, NAV[lang], "navigation: home, about, what we do, actions, news, contact");
     const otherLang = lang === "el" ? "en" : "el";
     const switchHref = attr(html, new RegExp(`<a href="([^"]+)" lang="${otherLang}" hreflang="${otherLang}"`));
     assert.equal(switchHref, counterpart, "language switch must lead to the counterpart page");

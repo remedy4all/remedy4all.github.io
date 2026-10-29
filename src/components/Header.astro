@@ -4,9 +4,11 @@ import { PAGES, otherLang, pathFor, t, type Lang, type PageKey } from "../i18n";
 interface Props {
   lang: Lang;
   page: PageKey;
+  /** On an entry page the section link is current, but is not the page itself. */
+  inEntry?: boolean;
 }
 
-const { lang, page } = Astro.props;
+const { lang, page, inEntry = false } = Astro.props;
 const d = t(lang);
 const other = otherLang(lang);
 ---
@@ -21,7 +23,7 @@ const other = otherLang(lang);
         {
           PAGES.map((p) => (
             <li>
-              <a href={pathFor(lang, p)} aria-current={p === page ? "page" : undefined}>
+              <a href={pathFor(lang, p)} aria-current={p === page ? (inEntry ? "true" : "page") : undefined}>
                 {d.pages[p].title}
               </a>
             </li>

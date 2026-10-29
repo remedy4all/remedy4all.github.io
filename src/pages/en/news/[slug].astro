@@ -1,0 +1,14 @@
+---
+import EntryPage from "../../../components/pages/EntryPage.astro";
+import { entriesFor } from "../../../lib/entries";
+
+// One page per news entry in this language; none while the collection is empty.
+export async function getStaticPaths() {
+  const entries = await entriesFor("news", "en");
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+---
+
+<EntryPage lang="en" section="news" entry={entry} />

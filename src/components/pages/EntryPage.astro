@@ -1,0 +1,29 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { entryPath, pathFor, t, type Lang, type Section } from "../../i18n";
+import { formatDate, type Entry } from "../../lib/entries";
+
+interface Props {
+  lang: Lang;
+  section: Section;
+  entry: Entry;
+}
+
+const { lang, section, entry } = Astro.props;
+const d = t(lang);
+const { Content } = await render(entry);
+---
+
+<Base
+  lang={lang}
+  page={section}
+  entry={{ title: entry.data.title, description: entry.data.summary, path: entryPath(lang, section, entry.id) }}
+>
+  <article class="entry">
+    <h1>{entry.data.title}</h1>
+    <time datetime={entry.data.date.toISOString().slice(0, 10)}>{formatDate(entry.data.date, d.sections.dateLocale)}</time>
+    <Content />
+  </article>
+  <p><a href={pathFor(lang, section)}>{d.pages[section].title}</a></p>
+</Base>

@@ -7,13 +7,15 @@ import { LANGS, pathFor, t, type Lang, type PageKey } from "../i18n";
 interface Props {
   lang: Lang;
   page: PageKey;
+  /** Set on an actions or news entry page: its own title, description and path. */
+  entry?: { title: string; description: string; path: string };
 }
 
-const { lang, page } = Astro.props;
+const { lang, page, entry } = Astro.props;
 const d = t(lang);
-const meta = d.pages[page];
-const title = page === "home" ? "REMEDY FOR ALL" : `${meta.title} | REMEDY FOR ALL`;
-const canonical = new URL(pathFor(lang, page), Astro.site).href;
+const meta = entry ?? d.pages[page];
+const title = page === "home" && !entry ? "REMEDY FOR ALL" : `${meta.title} | REMEDY FOR ALL`;
+const canonical = new URL(entry?.path ?? pathFor(lang, page), Astro.site).href;
 const ogImage = new URL("/brand/og-image.png", Astro.site).href;
 ---
 
@@ -25,8 +27,14 @@ const ogImage = new URL("/brand/og-image.png", Astro.site).href;
     <title>{title}</title>
     <meta name="description" content={meta.description} />
     <link rel="canonical" href={canonical} />
-    {LANGS.map((l) => <link rel="alternate" hreflang={l} href={new URL(pathFor(l, page), Astro.site).href} />)}
-    <link rel="alternate" hreflang="x-default" href={new URL(pathFor("el", page), Astro.site).href} />
+    {
+      !entry && (
+        <>
+          {LANGS.map((l) => <link rel="alternate" hreflang={l} href={new URL(pathFor(l, page), Astro.site).href} />)}
+          <link rel="alternate" hreflang="x-default" href={new URL(pathFor("el", page), Astro.site).href} />
+        </>
+      )
+    }
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/noto-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
@@ -43,7 +51,7 @@ const ogImage = new URL("/brand/og-image.png", Astro.site).href;
   </head>
   <body>
     <a class="skip-link" href="#main">{d.skipToContent}</a>
-    <Header lang={lang} page={page} />
+    <Header lang={lang} page={page} inEntry={Boolean(entry)} />
     <main id="main" tabindex="-1">
       <div class="container">
         <slot />

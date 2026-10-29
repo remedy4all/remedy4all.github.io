@@ -1,8 +1,8 @@
 # Remedy for All website
 
 The public website of ΑΜΚΕ «REMEDY FOR ALL», a Greek non-profit civil company. It is a static,
-bilingual site: Greek at `/`, English at `/en/`. It has four pages per language (home, about, what
-we do, contact), and no backend, forms, analytics or third-party content.
+bilingual site: Greek at `/`, English at `/en/`. It has six pages per language (home, about, what
+we do, actions, news, contact), and no backend, forms, analytics or third-party content.
 
 Built with [Astro](https://astro.build) and npm, deployed to GitHub Pages by GitHub Actions.
 
@@ -26,6 +26,30 @@ While a value still starts with `__PLACEHOLDER`, the contact page shows «Σύν
 «Coming soon» for that field, and the placeholder is never rendered or linked. To publish one,
 replace its placeholder with the real value and rebuild: an email becomes a `mailto:` link, a
 phone a `tel:` link, and an address plain text.
+
+## Actions and News
+
+Both sections are content collections defined in `src/content.config.ts`, one Markdown file per
+entry in `src/content/actions/` or `src/content/news/`. **Both are empty**, so each landing page
+shows «Η ενότητα είναι υπό κατασκευή» / "This section is under construction", and the home page
+marks them as under construction. To publish an entry, add a file. For example,
+`src/content/news/first-meeting.md`:
+
+```markdown
+---
+title: "Title of the item"
+date: 2026-11-15
+language: el          # el or en; the entry appears only in that language
+summary: "One or two sentences for the list."
+---
+
+The body, in Markdown.
+```
+
+Rebuilding then lists the section's entries newest first on its landing page, gives each entry its
+own page (`/news/first-meeting/`, or under `/en/` for English), and adds it to the sitemap. While a
+collection is empty, the build logs Astro's "collection does not exist or is empty" warning. It is
+expected and harmless. `tests/fixtures/content/` holds test-only entries that are never shipped.
 
 ## Brand
 
@@ -70,7 +94,9 @@ request.
 | Path | What |
 |---|---|
 | `src/i18n/el.ts`, `src/i18n/en.ts` | All page text. Greek first; English translates it |
-| `src/components/pages/` | The four page bodies, shared by both languages |
+| `src/components/pages/` | The page bodies, shared by both languages |
+| `src/content.config.ts`, `src/content/` | The actions and news collections (empty) |
+| `src/lib/entries.ts` | A section's entries in one language, newest first |
 | `src/pages/`, `src/pages/en/` | Routes: one thin file per page and language |
 | `src/layouts/Base.astro` | Head metadata, header, footer |
 | `src/styles/global.css` | All styles, and the self-hosted font |
@@ -79,6 +105,7 @@ request.
 | `src/lib/contact.ts` | How a contact value is shown, and never shown while it is a placeholder |
 | `tests/site.test.mjs` | Checks the built pages: languages, navigation, metadata, brand, credit, and the content rules |
 | `tests/contact.test.mjs` | Unit tests of the contact-field rules |
+| `tests/sections.test.mjs`, `tests/fixtures/` | Builds against fixture entries to pin the populated actions and news state |
 | `openspec/` | The specification (OpenSpec) |
 
 ## Content rules

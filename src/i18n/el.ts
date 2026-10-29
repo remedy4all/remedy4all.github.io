@@ -23,6 +23,14 @@ export const el: Dictionary = {
       description:
         "Οι σκοποί της REMEDY FOR ALL, όπως ορίζονται στο άρθρο 4 του καταστατικού της.",
     },
+    actions: {
+      title: "Δράσεις",
+      description: "Η ενότητα «Δράσεις» της REMEDY FOR ALL.",
+    },
+    news: {
+      title: "Νέα",
+      description: "Η ενότητα «Νέα» της REMEDY FOR ALL.",
+    },
     contact: {
       title: "Επικοινωνία",
       description: "Επικοινωνία με τη REMEDY FOR ALL.",
@@ -36,6 +44,8 @@ export const el: Dictionary = {
     links: {
       about: "Η νομική ταυτότητα της εταιρίας.",
       whatWeDo: "Οι σκοποί της, όπως ορίζονται στο καταστατικό.",
+      actions: "Οι δράσεις της εταιρίας.",
+      news: "Τα νέα της εταιρίας.",
       contact: "Στοιχεία επικοινωνίας.",
     },
   },
@@ -75,6 +85,12 @@ export const el: Dictionary = {
       "Υποβολή προτάσεων για συμμετοχή σε σχετικά προγράμματα, στην Ελλάδα και στο εξωτερικό, για την εξασφάλιση των απαραίτητων πόρων.",
     ],
     indicative: "Κατά το καταστατικό, η απαρίθμηση αυτή είναι ενδεικτική και όχι περιοριστική.",
+  },
+
+  sections: {
+    underConstruction: "Η ενότητα είναι υπό κατασκευή.",
+    underConstructionShort: "Υπό κατασκευή.",
+    dateLocale: "el-GR",
   },
 
   contact: {

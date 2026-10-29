@@ -1,8 +1,15 @@
 import type { APIRoute } from "astro";
-import { LANGS, PAGES, pathFor } from "../i18n";
+import { LANGS, PAGES, SECTIONS, entryPath, pathFor } from "../i18n";
+import { entriesFor } from "../lib/entries";
 
-export const GET: APIRoute = ({ site }) => {
-  const urls = LANGS.flatMap((lang) => PAGES.map((page) => new URL(pathFor(lang, page), site).href));
+export const GET: APIRoute = async ({ site }) => {
+  const paths = LANGS.flatMap((lang) => PAGES.map((page) => pathFor(lang, page)));
+  for (const lang of LANGS) {
+    for (const section of SECTIONS) {
+      for (const entry of await entriesFor(section, lang)) paths.push(entryPath(lang, section, entry.id));
+    }
+  }
+  const urls = paths.map((path) => new URL(path, site).href);
   const body = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',

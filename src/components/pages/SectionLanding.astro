@@ -1,0 +1,36 @@
+---
+import Base from "../../layouts/Base.astro";
+import UnderConstruction from "../UnderConstruction.astro";
+import { entryPath, t, type Lang, type Section } from "../../i18n";
+import { entriesFor, formatDate } from "../../lib/entries";
+
+interface Props {
+  lang: Lang;
+  section: Section;
+}
+
+const { lang, section } = Astro.props;
+const d = t(lang);
+const entries = await entriesFor(section, lang);
+---
+
+<Base lang={lang} page={section}>
+  <h1>{d.pages[section].title}</h1>
+  {
+    entries.length === 0 ? (
+      <UnderConstruction lang={lang} />
+    ) : (
+      <ul class="entries">
+        {entries.map((entry) => (
+          <li>
+            <a href={entryPath(lang, section, entry.id)}>{entry.data.title}</a>
+            <time datetime={entry.data.date.toISOString().slice(0, 10)}>
+              {formatDate(entry.data.date, d.sections.dateLocale)}
+            </time>
+            <p>{entry.data.summary}</p>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</Base>

@@ -3,6 +3,18 @@
 All notable changes to the site. Versions follow [Semantic Versioning](https://semver.org/); each
 release is tagged `vX.Y.Z`.
 
+## [0.3.0] - 2026-10-29
+
+Actions and News sections (REQ-REMD-013).
+
+### Added
+- «Δράσεις» / "Actions" and «Νέα» / "News" in both languages, in the navigation between "What we
+  do" and "Contact", with landing pages at `/actions/`, `/news/`, `/en/actions/` and `/en/news/`.
+  Both are under construction: each shows «Η ενότητα είναι υπό κατασκευή» / "This section is
+  under construction", and the home page marks them so.
+- `actions` and `news` content collections, empty. Adding a Markdown file publishes an entry with
+  its own page, listed newest first.
+
 ## [0.2.0] - 2026-10-29
 
 Brand, supporter credit, contact fields and site URL (REQ-REMD-003).

@@ -13,12 +13,17 @@ derived from the logo artwork.
 - **THEN** it has `title`, `meta[name=description]`, `og:title`, `og:description`, `og:image`, `link[rel=canonical]` and `link[rel=icon]`
 
 ### Requirement: Sitemap and robots
-The site SHALL publish `sitemap.xml` listing all eight pages under the configured site URL, and
-`robots.txt` pointing at it.
+The site SHALL publish `sitemap.xml` listing every built page under the configured site URL (the
+twelve section pages, plus one URL per actions or news entry once entries exist), and `robots.txt`
+pointing at it.
 
 #### Scenario: Sitemap lists every page
-- **WHEN** `sitemap.xml` is read
-- **THEN** it lists the eight page URLs, each beginning with the configured site URL
+- **WHEN** `sitemap.xml` is read on a build with no entries
+- **THEN** it lists the twelve page URLs, each beginning with the configured site URL
+
+#### Scenario: Sitemap lists entry pages
+- **WHEN** the site is built with entries
+- **THEN** `sitemap.xml` also lists each entry's page
 
 ### Requirement: Single organisation setting
 The organisation's GitHub name SHALL be set in one configuration value, from which the site URL is

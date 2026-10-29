@@ -2,7 +2,8 @@
 // missing translation fails `npm run check`.
 
 export type Lang = "el" | "en";
-export type PageKey = "home" | "about" | "whatWeDo" | "contact";
+export type PageKey = "home" | "about" | "whatWeDo" | "actions" | "news" | "contact";
+export type Section = "actions" | "news";
 
 export interface PageMeta {
   /** Navigation label and the page's own heading. */
@@ -48,6 +49,15 @@ export interface Dictionary {
     /** Art. 4.2 items 1 to 9, 11 and 12. Item 10 is not shown. */
     purposes: string[];
     indicative: string;
+  };
+
+  sections: {
+    /** The landing page statement while a section has no entries. */
+    underConstruction: string;
+    /** The home page card text for a section with no entries. */
+    underConstructionShort: string;
+    /** Locale for entry dates. */
+    dateLocale: string;
   };
 
   contact: {

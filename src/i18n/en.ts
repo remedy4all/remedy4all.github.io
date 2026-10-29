@@ -21,6 +21,14 @@ export const en: Dictionary = {
       title: "What we do",
       description: "The purposes of REMEDY FOR ALL, as set out in Article 4 of its statute.",
     },
+    actions: {
+      title: "Actions",
+      description: "The Actions section of REMEDY FOR ALL.",
+    },
+    news: {
+      title: "News",
+      description: "The News section of REMEDY FOR ALL.",
+    },
     contact: {
       title: "Contact",
       description: "Contacting REMEDY FOR ALL.",
@@ -34,6 +42,8 @@ export const en: Dictionary = {
     links: {
       about: "The company's legal identity.",
       whatWeDo: "Its purposes, as set out in its statute.",
+      actions: "The company's actions.",
+      news: "The company's news.",
       contact: "Contact details.",
     },
   },
@@ -73,6 +83,12 @@ export const en: Dictionary = {
       "Submitting proposals to take part in relevant programmes, in Greece and abroad, to secure the necessary resources.",
     ],
     indicative: "Under the statute, this list is indicative and not exhaustive.",
+  },
+
+  sections: {
+    underConstruction: "This section is under construction.",
+    underConstructionShort: "Under construction.",
+    dateLocale: "en-GB",
   },
 
   contact: {

@@ -36,7 +36,7 @@ project and survive `adapt` reruns and kit updates.
   company. Static, bilingual: Greek primary, English second. No backend, no database, no forms.
 - **Stack:** Astro static site generator, npm, TypeScript (strict). Same approach as the CYCLOS
   project site CSSA maintains.
-- **Pages:** home, about, what we do, contact, in Greek at `/` and English at `/en/`
+- **Pages:** home, about, what we do, actions, news, contact (that nav order), in Greek at `/` and English at `/en/`
   (`trailingSlash: "always"`). Shared slugs, so the language switch swaps the `/en` prefix.
 - **Layout of the code:** all text in `src/i18n/el.ts` and `src/i18n/en.ts` (typed by
   `src/i18n/types.ts`, so a missing translation fails the type check); page bodies in
@@ -55,6 +55,12 @@ project and survive `adapt` reruns and kit updates.
   text; slate `#6D7A8A` for borders only; blue `#3FA9F7` for non-text accents only (it fails 4.5:1).
 - **Footer:** navy band (dark logo, legal line), then a white strip with the CSSA supporter credit
   (link to https://www.csl.gr). No other claim about CSSA.
+- **Actions and News:** content collections in `src/content.config.ts` (`glob` over
+  `src/content/<section>/*.md`; frontmatter title, date, language, summary; Markdown body). Empty
+  for now: the landing pages show the shared `UnderConstruction` statement. With entries, the
+  landing lists that language's entries newest first and `src/pages/[en/]<section>/[slug].astro`
+  builds one page each. `CONTENT_ROOT` (test only) points the loader at `tests/fixtures/content`.
+  Never add an entry that a request did not supply.
 - **Font:** Noto Sans variable, self-hosted in `public/fonts/` (OFL 1.1), latin and greek subsets.
 - **Tests:** `tests/site.test.mjs`, Node's built-in runner, run against `dist/` after a build.
 - **Workflows:** `.github/workflows/ci.yml` (gates on every push and PR) and
@@ -105,7 +111,7 @@ root, after `npm ci`.
 - Dev server: `npm run dev`
 - Type check: `npm run check` (`astro check`: TypeScript and Astro template diagnostics)
 - Lint: `npm run check`. There is no separate linter; `astro check` is the lint gate.
-- Test: `npm test` (contact-rule unit tests, and build-output tests against `dist/`; needs `npm run build` first)
+- Test: `npm test` (contact-rule unit tests, a fixture build of the populated sections into `node_modules/.astro-fixture/`, and build-output tests against `dist/`; needs `npm run build` first)
 - Build: `npm run build` (static output in `dist/`)
 - Preview: `npm run preview`
 - Kit hook tests: `uv run --script .claude/hooks/test_block_ai_attribution.py`

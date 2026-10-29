@@ -315,6 +315,45 @@ a:focus-visible {
   font-style: italic;
 }
 
+/* Actions and news */
+.under-construction {
+  margin: 0.5rem 0 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--blue);
+  border-radius: 4px;
+  font-size: 1.1rem;
+}
+
+.entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.entries li {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.entries a {
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.entries time,
+.entry time {
+  display: block;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0.2rem 0 0.4rem;
+}
+
+.entries p {
+  margin: 0;
+}
+
 /* Footer: navy band with the dark logo, then a white strip with the supporter credit. */
 .site-footer {
   font-size: 0.9rem;

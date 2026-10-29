@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { pathFor, t, type Lang } from "../../i18n";
+import { entriesFor } from "../../lib/entries";
 
 interface Props {
   lang: Lang;
@@ -8,7 +9,13 @@ interface Props {
 
 const { lang } = Astro.props;
 const d = t(lang);
-const links = ["about", "whatWeDo", "contact"] as const;
+const empty = {
+  actions: (await entriesFor("actions", lang)).length === 0,
+  news: (await entriesFor("news", lang)).length === 0,
+};
+const links = ["about", "whatWeDo", "actions", "news", "contact"] as const;
+const text = (p: (typeof links)[number]) =>
+  (p === "actions" || p === "news") && empty[p] ? d.sections.underConstructionShort : d.home.links[p];
 ---
 
 <Base lang={lang} page="home">
@@ -21,7 +28,7 @@ const links = ["about", "whatWeDo", "contact"] as const;
       links.map((p) => (
         <li class="card">
           <a href={pathFor(lang, p)}>{d.pages[p].title}</a>
-          <p>{d.home.links[p]}</p>
+          <p>{text(p)}</p>
         </li>
       ))
     }
