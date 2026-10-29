@@ -1,0 +1,258 @@
+# Agent Coordination Reference
+
+Load this file for detailed verification, archiving, retry logic, and edge cases.
+
+---
+
+## Archive Details
+
+### archive_reports.py Usage
+
+```bash
+# Script location: .claude/skills/agent-coordination/scripts/archive_reports.py
+
+# Basic archiving (default: 7 days)
+uv run --script .claude/skills/agent-coordination/scripts/archive_reports.py
+
+# Custom threshold (14 days)
+uv run --script .claude/skills/agent-coordination/scripts/archive_reports.py 14
+
+# Dry run (preview without moving)
+uv run --script .claude/skills/agent-coordination/scripts/archive_reports.py 7 --dry-run
+```
+
+**How it works:**
+1. Parses active registry rows (by the row's Date column, not the filename).
+   Rows must be canonical — see `SKILL.md` § *Registry Entry Format*. If the
+   registry holds entry-like lines but none parse, the script exits non-zero
+   with a diagnosis instead of reporting "0 archived, 0 remaining".
+2. Moves files older than threshold to `.claude/reports/archive/[category]/`
+3. Writes the dated archive registry `_registry-archive-YYYY-MM-DD.md`,
+   **merging** with that day's registry if one exists (a second run on the same
+   day never discards the first run's batch)
+4. Updates active registry (removes archived entries)
+5. Changes status to "Archived" in archive registry
+
+**Output:**
+- Dated archive: `.claude/reports/archive/_registry-archive-YYYY-MM-DD.md`
+- Moved files: `.claude/reports/archive/[category]/[filename].md`
+- Updated active registry: `.claude/reports/_registry.md`
+
+**When to run:**
+- Registry exceeds 50 entries
+- Weekly cleanup
+- Before starting major work (clean context)
+
+---
+
+## Verification Details
+
+### verify.py Usage
+
+```bash
+# Script location: .claude/skills/agent-coordination/scripts/verify.py
+
+# Basic verification.
+# `name` is the filename stem WITHOUT the date; `date` is ISO YYYY-MM-DD.
+# Together they must form the real filename: {name}-{date}.md
+uv run --script .claude/skills/agent-coordination/scripts/verify.py "review" "review-security-audit-src" "2025-12-13"
+
+# With git path check
+uv run --script .claude/skills/agent-coordination/scripts/verify.py "implementation" "implementation-auth-module-lib-auth" "2025-12-13" "lib/auth/"
+```
+
+### Registry Helpers
+
+Prefer these over hand-editing `_registry.md` — they keep rows in the one
+format `archive_reports.py` and `validate_registry.py` expect.
+
+```bash
+SC=.claude/skills/agent-coordination/scripts
+
+# Append an entry (and scaffold the report file) in the canonical row format.
+# --name is the stem WITHOUT the date; the date is appended automatically.
+# --agent stamps the report header block (templates.md § Report Template).
+uv run --script $SC/add_report.py --category review --name review-quality-src \
+    --status Completed --summary "Peer review of src/" \
+    --agent code-quality --scaffold
+
+# Lint the registry: bad rows, dates, link/target mismatch, missing files
+uv run --script $SC/validate_registry.py            # exit 1 on errors
+uv run --script $SC/validate_registry.py --strict   # warnings (orphan files) also fail
+```
+
+### Definition Frontmatter Lint
+
+Claude Code parses agent and command frontmatter as YAML, and a block that
+fails to parse is dropped silently — the agent never registers (invoking it
+fails with `Agent type 'x' not found`) and a command falls back to its first
+body line as its description. `bootstrap.py` runs this check at install; run it
+by hand after editing `.claude/agents/*.md` or `.claude/commands/**/*.md`:
+
+```bash
+uv run --script $SC/validate_frontmatter.py            # exit 1 on errors
+uv run --script $SC/validate_frontmatter.py --strict   # warnings also fail
+```
+
+**The trap:** an unquoted value containing `: ` is a YAML syntax error, because
+the parser reads the second colon as another mapping key.
+
+```yaml
+description: Security review. Modes: scan (OWASP)     # rejects the whole file
+description: "Security review. Modes: scan (OWASP)"   # fine
+name: Agents: Review                                  # rejects the whole file
+```
+
+Supported keys — agents: `name`, `description`, `tools`, `model`, `color`.
+Commands: `description`, `argument-hint`, `allowed-tools`, `model`,
+`disable-model-invocation`. Note that `argument-hint: [days]` parses as a
+*list*, not text; quote it as `"[days]"`.
+
+### Manual Verification (if script unavailable)
+
+```bash
+# 1. Report exists
+test -f ".claude/reports/[cat]/[name]-[date].md" && echo "OK" || echo "MISSING"
+
+# 2. Has content (>10 lines)
+[ $(wc -l < ".claude/reports/[cat]/[name]-[date].md") -gt 10 ] && echo "OK" || echo "EMPTY"
+
+# 3. Registry updated
+grep -q "[name]-[date]" .claude/reports/_registry.md && echo "OK" || echo "NOT IN REGISTRY"
+
+# 4. Code changed (optional)
+git status --short | grep -q "[path]" && echo "OK" || echo "NO CHANGES"
+```
+
+---
+
+## Retry Protocol
+
+### Attempt 1: Initial Invocation
+Standard task prompt.
+
+### Attempt 2: Explicit Tool Requirements
+Add to prompt:
+```
+CRITICAL: You MUST use the Write tool to create the report file at .claude/reports/[cat]/[name].md
+Do NOT just describe the report - actually create the file.
+```
+
+### Attempt 3: Different Model
+If using sonnet, try haiku for simpler tasks.
+If using haiku, escalate to sonnet.
+
+### Attempt 4: Escalate to User
+Report:
+- What was attempted
+- What failed
+- Suggested manual action
+
+---
+
+## Sequencing Examples
+
+> **Modes are prompt text, not a parameter.** Each agent documents its modes in
+> its own definition (`.claude/agents/<name>.md`), but the Task tool has no
+> `mode` argument — state the mode in the prompt, as below. Agent frontmatter
+> should not declare a `mode:` key either; it is not part of the schema and
+> nothing reads it. Keep definitions to the supported keys and let
+> `validate_frontmatter.py` enforce it.
+
+### Parallel Safe
+```
+# These don't share output files
+Task(code-quality, "Mode: review. Review src/api/ for security")
+Task(code-quality, "Mode: review. Review src/models/ for correctness")
+Task(test-engineer, "Run test coverage")
+```
+
+### Sequential Required
+```
+# Architect output feeds frontend
+Task(architect, "Mode: system. Design dashboard API contract")
+# VERIFY: .claude/reports/architecture/architecture-dashboard-api-*.md exists
+Task(frontend, "Implement dashboard using API contract from arch report")
+# VERIFY: src/components/Dashboard/* exists
+Task(test-engineer, "Test dashboard components")
+```
+
+---
+
+## Common Patterns
+
+### Code Review + Fix Flow
+```
+1. code-quality (mode: review) → findings report
+2. VERIFY report
+3. IF critical issues: code-quality (mode: debug) → root cause
+4. VERIFY report
+5. [Implementation agent] → fixes
+6. test-engineer → validate fixes
+```
+
+### Feature Implementation Flow
+```
+1. architect (mode: system) → design
+2. VERIFY report
+3. [backend/frontend] → implement
+4. VERIFY code + report
+5. code-quality (mode: review) → review
+6. test-engineer → tests
+7. docs → documentation
+```
+
+### Data Pipeline Flow
+```
+1. architect (mode: pipeline) → pipeline design
+2. VERIFY report
+3. data-engineer (mode: collect) → collection
+4. data-engineer (mode: analyze) → EDA
+5. data-engineer (mode: preprocess) → preprocessing
+6. ml-engineer (mode: train) → training
+7. ml-engineer (mode: evaluate) → evaluation
+```
+
+---
+
+## Edge Cases
+
+### Agent Creates Wrong File Location
+- Retry with explicit path in prompt
+- Add: "Save to EXACTLY this path: .claude/reports/[full/path]"
+
+### Agent Describes Instead of Creates
+- Add: "You MUST use Write tool, not describe what you would write"
+- Check agent has Write in allowed-tools
+
+### Registry Conflict
+- **Same category, topic, scope and day → same file, intentionally.** A re-run
+  replaces the earlier report rather than accumulating near-copies; the existing
+  registry row still applies, so do not add a second one.
+- **Genuinely different work colliding** means the scope slug is too coarse —
+  narrow it (`src` → `src-api`) rather than appending `-v2`.
+- **Superseded by later work:** keep both rows, set the older to `Superseded`.
+
+### Context Too Large
+- Summarize reports instead of including full text
+- Use: "Key finding from [report]: [one sentence]"
+- Limit to 3 most relevant prior reports
+
+---
+
+## Design Integration
+
+When task involves frontend/styling:
+1. Note in prompt: "Follow design-system skill (brand vs data colors)"
+2. For data viz: "Use data colors only (#33BBEE, #0077BB sequence)"
+3. For UI: "Use brand colors (#0176D3, #032D60)"
+
+---
+
+## Quality Checklist
+
+Before marking task complete:
+- [ ] All agent deliverables verified
+- [ ] Registry updated with all new reports
+- [ ] Handoff created if follow-up needed
+- [ ] Summary provided to user

@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.13"
+# dependencies = []
+# ///
+"""Validate the report registry's format and integrity.
+
+Catches the drift that would make archive_reports.py silently no-op:
+malformed rows, bad dates, link-text/target mismatch, missing report files,
+duplicate entries, and unknown status values.
+
+Usage:
+    uv run --script validate_registry.py [--reports-dir .claude/reports] [--strict]
+
+Exit code: 0 if no errors, 1 if any errors. With --strict, warnings also fail.
+"""
+
+import argparse
+import re
+import sys
+from datetime import datetime
+from pathlib import Path
+
+VALID_STATUSES = {"Active", "Completed", "Superseded", "Archived"}
+
+# Canonical report row: | [name.md](category/name.md) | YYYY-MM-DD | Status | Summary |
+ROW_RE = re.compile(r"\| \[(.*?)\]\((.*?)\) \| (.*?) \| (.*?) \| (.*?) \|\s*$")
+
+# Entry-like lines that are NOT canonical rows. Without this, a registry written
+# entirely in the old bullet form ("- name | Status | Summary") validated clean
+# while archive_reports.py could parse none of it — the exact drift this script
+# exists to catch. Bullets are checked explicitly rather than ignored.
+NONCANONICAL_RE = re.compile(r"^\s*-\s+(?:\[.*?\]\(.*?\)|\S+)\s*\|")
+
+
+def validate(reports_dir: Path) -> tuple[list[str], list[str]]:
+    """Return (errors, warnings) for the registry under reports_dir."""
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    registry = reports_dir / "_registry.md"
+    if not registry.exists():
+        return [f"Registry not found: {registry}"], []
+
+    seen: set[str] = set()
+    referenced: set[str] = set()
+
+    parsed_rows = 0
+    in_fence = False
+
+    for lineno, line in enumerate(registry.read_text(encoding="utf-8").splitlines(), start=1):
+        # The registry documents its own row format in a fenced example. Skip
+        # fenced blocks so that example is not validated as a real entry.
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+
+        # Bullet-style entries are a legacy format no tooling can parse. Flag
+        # them here rather than skipping, so drift fails loudly at the source.
+        if NONCANONICAL_RE.match(line):
+            errors.append(
+                f"L{lineno}: non-canonical bullet entry (archive_reports.py cannot parse it): "
+                f"{line.strip()!r}\n"
+                f"      want: | [name.md](category/name.md) | YYYY-MM-DD | Status | Summary |"
+            )
+            continue
+
+        # Only consider markdown-link table rows (report entries).
+        if not line.lstrip().startswith("| ["):
+            continue
+        m = ROW_RE.match(line.strip())
+        if not m:
+            errors.append(f"L{lineno}: malformed report row: {line.strip()!r}")
+            continue
+
+        text, target, date, status, _summary = m.groups()
+
+        if "/" not in target:
+            errors.append(f"L{lineno}: target '{target}' missing category/ prefix")
+            continue
+        if Path(target).name != text:
+            errors.append(f"L{lineno}: link text '{text}' != target file '{Path(target).name}'")
+
+        try:
+            datetime.strptime(date, "%Y-%m-%d")
+        except ValueError:
+            errors.append(f"L{lineno}: invalid date '{date}' (want ISO YYYY-MM-DD)")
+
+        if status not in VALID_STATUSES:
+            errors.append(f"L{lineno}: unknown status '{status}' (want one of {sorted(VALID_STATUSES)})")
+
+        if target in seen:
+            errors.append(f"L{lineno}: duplicate entry for '{target}'")
+        seen.add(target)
+        referenced.add(target)
+        parsed_rows += 1
+
+        report_path = reports_dir / target
+        if not report_path.exists():
+            errors.append(f"L{lineno}: report file missing: {report_path}")
+
+    # Orphan report files on disk that aren't registered (warning only).
+    skip_dirs = {"archive"}
+    for path in reports_dir.rglob("*.md"):
+        rel = path.relative_to(reports_dir)
+        if len(rel.parts) < 2 or rel.parts[0] in skip_dirs:
+            continue  # top-level templates/registry, or archived files
+        # Registry targets are always POSIX-style, so compare in that form:
+        # str(rel) would yield 'review\name.md' on Windows and never match.
+        if rel.as_posix() not in referenced:
+            warnings.append(f"Unregistered report file on disk: {rel.as_posix()}")
+
+    return errors, warnings
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Validate the report registry")
+    parser.add_argument("--reports-dir", default=".claude/reports")
+    parser.add_argument("--strict", action="store_true", help="Treat warnings as failures")
+    args = parser.parse_args(argv)
+
+    errors, warnings = validate(Path(args.reports_dir))
+
+    for w in warnings:
+        print(f"⚠️  {w}")
+    for e in errors:
+        print(f"❌ {e}")
+
+    if not errors and not warnings:
+        print("✅ Registry is valid.")
+    else:
+        print(f"\n{len(errors)} error(s), {len(warnings)} warning(s)")
+
+    if errors or (args.strict and warnings):
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    # Windows defaults piped stdout/stderr to a legacy codepage (cp1252), which
+    # makes the status glyphs above raise UnicodeEncodeError. Force UTF-8.
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+    raise SystemExit(main())

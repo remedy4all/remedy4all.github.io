@@ -1,0 +1,18 @@
+# Astro / npm
+node_modules/
+dist/
+.astro/
+
+# Agent kit: runtime reports are local; the registers are tracked
+.claude/settings.local.json
+.claude/reports/*/
+
+# Python (kit scripts)
+__pycache__/
+*.py[cod]
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
