@@ -32,14 +32,27 @@
   unicode-range: U+1F00-1FFF;
 }
 
+/* Proposal 4 palette (Stereotropism): navy #2D3A5A, blue #3FA9F7, slate #6D7A8A, cream #F6F7F1.
+   Roles keep body text and links at WCAG 2.1 AA (4.5:1). The blue fails on cream and white, so it
+   is used only for non-text accents.
+   --cream and --navy-band are the logos' own baked-in backgrounds, sampled from the artwork: the
+   light logo sits on --cream and the dark logo on --navy-band, so their edges never show. Do not
+   change either without regenerating the logos (scripts/build-brand-assets.py). */
 :root {
-  --bg: #fbfaf7;
+  --cream: #f6f7f0; /* light logo background; palette cream #F6F7F1 */
+  --navy-band: #2e3a59; /* dark logo background; palette navy #2D3A5A */
+  --navy: #2d3a5a; /* text, headings, links: 10.45:1 on cream */
+  --blue: #3fa9f7; /* accents only */
+  --slate: #6d7a8a; /* borders and rules only: 4.06:1 on cream */
+  --slate-text: #5a6676; /* secondary text, darkened slate: 5.42:1 on cream */
+  --on-navy: #f9f9f9; /* text on the navy band: 10.69:1 */
+  --bg: var(--cream);
   --surface: #ffffff;
-  --text: #1b1f24;
-  --muted: #4a5562;
-  --accent: #1d3557;
-  --border: #d9dde3;
-  --focus: #1d3557;
+  --text: var(--navy);
+  --muted: var(--slate-text);
+  --accent: var(--navy);
+  --border: #d5d9df;
+  --focus: var(--navy);
   --max: 46rem;
   font-family: "Noto Sans", system-ui, "Segoe UI", Roboto, Arial, sans-serif;
   line-height: 1.6;
@@ -130,8 +143,8 @@ a:focus-visible {
 
 /* Header */
 .site-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: var(--cream);
+  border-bottom: 3px solid var(--blue);
 }
 
 .header-inner {
@@ -154,14 +167,23 @@ a:focus-visible {
   grid-area: lang;
 }
 
-.wordmark {
+.brand {
   grid-area: brand;
   justify-self: start;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  font-size: 1.2rem;
-  text-decoration: none;
-  color: var(--accent);
+  display: block;
+  line-height: 0;
+}
+
+.brand img {
+  display: block;
+  width: 10.5rem;
+  height: auto;
+}
+
+@media (min-width: 40rem) {
+  .brand img {
+    width: 13.5rem;
+  }
 }
 
 .nav-list {
@@ -183,7 +205,8 @@ a:focus-visible {
 .nav-list a[aria-current="page"] {
   color: var(--accent);
   text-decoration: underline;
-  text-decoration-thickness: 2px;
+  text-decoration-color: var(--blue);
+  text-decoration-thickness: 3px;
 }
 
 .nav-list a[aria-current="page"] {
@@ -227,6 +250,7 @@ a:focus-visible {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
+  border-top: 4px solid var(--blue);
   border-radius: 8px;
   padding: 1.1rem 1.25rem;
 }
@@ -264,6 +288,11 @@ a:focus-visible {
   margin: 0;
 }
 
+.facts dd.pending {
+  color: var(--muted);
+  font-style: italic;
+}
+
 @media (max-width: 34rem) {
   .facts > div {
     grid-template-columns: 1fr;
@@ -286,15 +315,56 @@ a:focus-visible {
   font-style: italic;
 }
 
-/* Footer */
+/* Footer: navy band with the dark logo, then a white strip with the supporter credit. */
 .site-footer {
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--muted);
   font-size: 0.9rem;
-  padding: 1.25rem 0;
 }
 
 .site-footer p {
   margin: 0;
+}
+
+.footer-band {
+  background: var(--navy-band);
+  color: var(--on-navy);
+  padding: 1.25rem 0 1.5rem;
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.footer-logo {
+  display: block;
+  width: 9.5rem;
+  height: auto;
+}
+
+.footer-credit {
+  background: var(--surface);
+  color: var(--muted);
+  padding: 1rem 0;
+}
+
+.credit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.credit a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--navy);
+}
+
+.credit img {
+  display: block;
+  width: 8.5rem;
+  height: auto;
 }

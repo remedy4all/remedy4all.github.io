@@ -76,10 +76,14 @@ export const en: Dictionary = {
   },
 
   contact: {
-    comingSoon: "Contact details will be published soon.",
+    comingSoon: "Coming soon",
+    labels: { email: "Email", phone: "Phone", address: "Postal address" },
   },
 
   footer: {
     legal: "REMEDY FOR ALL non-profit civil company · ΓΕΜΗ 174746001000 · Municipality of Athens",
+    supportedBy: "Supported by",
   },
+
+  ogImageAlt: "The REMEDY FOR ALL logo",
 };

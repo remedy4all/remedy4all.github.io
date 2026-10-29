@@ -3,6 +3,25 @@
 All notable changes to the site. Versions follow [Semantic Versioning](https://semver.org/); each
 release is tagged `vX.Y.Z`.
 
+## [0.2.0] - 2026-10-29
+
+Brand, supporter credit, contact fields and site URL (REQ-REMD-003).
+
+### Added
+- Stereotropism Proposal 4 logo: the light variant in the header, the dark variant on a navy
+  footer band. Favicons and the Open Graph image are derived from it.
+- Footer supporter credit on every page: «Με την υποστήριξη της» / «Supported by» Computer
+  Solutions S.A., with its logo, linking to https://www.csl.gr.
+- Contact page fields (email, phone, postal address) set in `site.config.mjs`. Each shows
+  «Σύντομα διαθέσιμο» / «Coming soon» while its value is a placeholder.
+
+### Changed
+- The site is `https://remedy4all.github.io` (organisation `remedy4all`).
+- Proposal 4 palette site-wide, with body text and links at WCAG 2.1 AA contrast.
+- The text wordmark and its SVG favicon are replaced by the logo and derived PNG/ICO icons.
+- The contact page's general "details will be published soon" sentence is replaced by the
+  per-field «Coming soon».
+
 ## [0.1.0] - 2026-10-29
 
 First version (REQ-REMD-001).

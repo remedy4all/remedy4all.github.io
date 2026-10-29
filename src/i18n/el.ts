@@ -78,10 +78,14 @@ export const el: Dictionary = {
   },
 
   contact: {
-    comingSoon: "Τα στοιχεία επικοινωνίας θα δημοσιευτούν σύντομα.",
+    comingSoon: "Σύντομα διαθέσιμο",
+    labels: { email: "Email", phone: "Τηλέφωνο", address: "Ταχυδρομική διεύθυνση" },
   },
 
   footer: {
     legal: "REMEDY FOR ALL Αστική Μη Κερδοσκοπική Εταιρία · ΓΕΜΗ 174746001000 · Δήμος Αθηναίων",
+    supportedBy: "Με την υποστήριξη της",
   },
+
+  ogImageAlt: "Το λογότυπο της REMEDY FOR ALL",
 };

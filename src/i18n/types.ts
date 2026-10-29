@@ -51,10 +51,17 @@ export interface Dictionary {
   };
 
   contact: {
+    /** Shown in place of a contact value that is still a placeholder. */
     comingSoon: string;
+    labels: { email: string; phone: string; address: string };
   };
 
   footer: {
     legal: string;
+    /** Supporter credit label, followed by the company name. */
+    supportedBy: string;
   };
+
+  /** Alt text of the Open Graph image. */
+  ogImageAlt: string;
 }

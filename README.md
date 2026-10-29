@@ -6,19 +6,43 @@ we do, contact), and no backend, forms, analytics or third-party content.
 
 Built with [Astro](https://astro.build) and npm, deployed to GitHub Pages by GitHub Actions.
 
-## Where the site lives: the one setting
+## Settings: one file
 
-The GitHub organisation is set in **one place**, [`site.config.mjs`](site.config.mjs):
+All site settings live in [`site.config.mjs`](site.config.mjs).
+
+**Where the site lives.** The GitHub organisation is **`remedy4all`**
+(<https://github.com/remedy4all>), so the repository is `remedy4all/remedy4all.github.io` and the
+site is served at **<https://remedy4all.github.io>**, at the root with no base path:
 
 ```js
-export const GITHUB_ORG = "org-not-yet-chosen"; // PLACEHOLDER
+export const GITHUB_ORG = "remedy4all";
 ```
 
-The site URL is derived from it as `https://<org>.github.io`, and the canonical URLs, `sitemap.xml`
-and `robots.txt` all use it. **The value is a placeholder** until the organisation's name is
-chosen. Replace it, rebuild, and nothing else needs to change. The repository is meant to be the
-organisation's user-site repository, `<org>/<org>.github.io`, so the site is served at the root
-with no base path.
+The site URL is derived from it, and the canonical URLs, `og:image`, `sitemap.xml` and
+`robots.txt` all use it. A custom domain would change only this derivation.
+
+**Contact details.** Email, phone and postal address are the `CONTACT` values in the same file.
+While a value still starts with `__PLACEHOLDER`, the contact page shows «Σύντομα διαθέσιμο» /
+«Coming soon» for that field, and the placeholder is never rendered or linked. To publish one,
+replace its placeholder with the real value and rebuild: an email becomes a `mailto:` link, a
+phone a `tel:` link, and an address plain text.
+
+## Brand
+
+The logo is Stereotropism's Proposal 4. The source files are in `brand/source/`. In those SVGs
+the logo is an **embedded raster image**, not vector paths, with its background colour baked in.
+[`scripts/build-brand-assets.py`](scripts/build-brand-assets.py) extracts it and crops it to the
+artwork without changing any pixel. It also derives the favicons and the Open Graph image, and
+copies CSSA's logo:
+
+```bash
+uv run --script scripts/build-brand-assets.py   # writes public/brand/, public/favicon*, public/apple-touch-icon.png
+```
+
+The light logo sits on cream `#F6F7F0` (header and page) and the dark logo on navy `#2E3A59`
+(footer band). Those are the logos' own background colours, so the image edges never show. Change
+those surfaces only together with the logo files. The palette roles and contrast ratios are
+documented at the top of `src/styles/global.css`.
 
 ## Run it
 
@@ -51,7 +75,10 @@ request.
 | `src/layouts/Base.astro` | Head metadata, header, footer |
 | `src/styles/global.css` | All styles, and the self-hosted font |
 | `public/fonts/` | Noto Sans, SIL Open Font License 1.1 (`OFL.txt`) |
-| `tests/site.test.mjs` | Checks the built pages: languages, navigation, metadata, and the content rules |
+| `public/brand/` | Logos (light, dark, CSSA) and the Open Graph image, generated from `brand/source/` |
+| `src/lib/contact.ts` | How a contact value is shown, and never shown while it is a placeholder |
+| `tests/site.test.mjs` | Checks the built pages: languages, navigation, metadata, brand, credit, and the content rules |
+| `tests/contact.test.mjs` | Unit tests of the contact-field rules |
 | `openspec/` | The specification (OpenSpec) |
 
 ## Content rules

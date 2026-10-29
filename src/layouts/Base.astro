@@ -14,6 +14,7 @@ const d = t(lang);
 const meta = d.pages[page];
 const title = page === "home" ? "REMEDY FOR ALL" : `${meta.title} | REMEDY FOR ALL`;
 const canonical = new URL(pathFor(lang, page), Astro.site).href;
+const ogImage = new URL("/brand/og-image.png", Astro.site).href;
 ---
 
 <!doctype html>
@@ -26,7 +27,8 @@ const canonical = new URL(pathFor(lang, page), Astro.site).href;
     <link rel="canonical" href={canonical} />
     {LANGS.map((l) => <link rel="alternate" hreflang={l} href={new URL(pathFor(l, page), Astro.site).href} />)}
     <link rel="alternate" hreflang="x-default" href={new URL(pathFor("el", page), Astro.site).href} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/noto-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="REMEDY FOR ALL" />
@@ -34,6 +36,10 @@ const canonical = new URL(pathFor(lang, page), Astro.site).href;
     <meta property="og:description" content={meta.description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={d.ogLocale} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={d.ogImageAlt} />
   </head>
   <body>
     <a class="skip-link" href="#main">{d.skipToContent}</a>

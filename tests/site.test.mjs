@@ -52,7 +52,9 @@ for (const { lang, path, counterpart } of ALL) {
     assert.match(html, /<meta name="description" content="[^"]+"/);
     assert.match(html, /<meta property="og:title" content="[^"]+"/);
     assert.match(html, /<meta property="og:description" content="[^"]+"/);
-    assert.match(html, /<link rel="icon"[^>]+href="\/favicon\.svg"/);
+    assert.match(html, /<link rel="icon"[^>]+href="\/favicon-32\.png"/);
+    assert.equal(attr(html, /<meta property="og:image" content="([^"]+)"/), `${SITE_URL}/brand/og-image.png`);
+    assert.match(html, /<meta property="og:image:alt" content="[^"]+"/);
     assert.equal(attr(html, /<link rel="canonical" href="([^"]+)"/), SITE_URL + path);
   });
 
@@ -61,6 +63,7 @@ for (const { lang, path, counterpart } of ALL) {
     const text = visibleText(html);
     assert.doesNotMatch(text, /lorem|ipsum|\bTBD\b|\bTODO\b|placeholder|not-yet-chosen/i);
     assert.doesNotMatch(html, /mailto:|tel:/i);
+    assert.doesNotMatch(html, /__PLACEHOLDER/i, "a placeholder contact value reached the page");
     // Markers of the members' data the statute carries: ID cards, tax numbers (9 digits).
     assert.doesNotMatch(text, /Α\.?Φ\.?Μ\.?|Α\.?Δ\.?Τ\.?|δελτί\S* ταυτότητας|\bVAT\b|\bID card\b|\btax number\b/i);
     assert.doesNotMatch(text, /(?<!\d)\d{9}(?!\d)/);
@@ -109,9 +112,27 @@ test("what-we-do pages: eleven purposes in each language", () => {
   }
 });
 
-test("contact pages: coming soon, no details", () => {
-  assert.match(visibleText(read("/contact/")), /θα δημοσιευτούν σύντομα/);
-  assert.match(visibleText(read("/en/contact/")), /will be published soon/);
+test("contact pages: each placeholder field reads coming soon", () => {
+  const count = (html, s) => visibleText(html).split(s).length - 1;
+  assert.equal(count(read("/contact/"), "Σύντομα διαθέσιμο"), 3);
+  assert.equal(count(read("/en/contact/"), "Coming soon"), 3);
+});
+
+for (const { lang, path } of ALL) {
+  test(`${path}: logo in header and footer, supporter credit in the page's language`, () => {
+    const html = read(path);
+    const header = html.match(/<header[\s\S]*?<\/header>/)[0];
+    assert.match(header, new RegExp(`<a class="brand" href="${lang === "el" ? "/" : "/en/"}">\\s*<img src="/brand/remedy-logo-light.png"[^>]*alt="Remedy for All"`));
+    const footer = html.match(/<footer[\s\S]*?<\/footer>/)[0];
+    assert.match(footer, /src="\/brand\/remedy-logo-dark.png"/);
+    assert.match(footer, /<a href="https:\/\/www\.csl\.gr">\s*<img src="\/brand\/cssa-logo.png"/);
+    assert.match(visibleText(footer), new RegExp(`${lang === "el" ? "Με την υποστήριξη της" : "Supported by"} Computer Solutions S\\.A\\.`));
+  });
+}
+
+test("site URL is https://remedy4all.github.io", () => {
+  assert.equal(SITE_URL, "https://remedy4all.github.io");
+  assert.equal(attr(read("/"), /<link rel="canonical" href="([^"]+)"/), "https://remedy4all.github.io/");
 });
 
 test("sitemap lists the eight pages under the site URL", () => {

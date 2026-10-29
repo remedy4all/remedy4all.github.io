@@ -43,15 +43,25 @@ project and survive `adapt` reruns and kit updates.
   `src/components/pages/`; thin route files in `src/pages/` and `src/pages/en/`; head metadata,
   header and footer in `src/layouts/Base.astro` and `src/components/`; all CSS in
   `src/styles/global.css`; `sitemap.xml` and `robots.txt` as endpoints in `src/pages/`.
-- **The one setting:** `site.config.mjs` holds `GITHUB_ORG`; `SITE_URL` (`https://<org>.github.io`)
-  is derived from it and feeds `astro.config.mjs`, canonicals, sitemap and robots.
+- **Settings, one file:** `site.config.mjs` holds `GITHUB_ORG = "remedy4all"`, from which `SITE_URL`
+  (`https://remedy4all.github.io`) is derived and fed to `astro.config.mjs`, canonicals, og:image,
+  sitemap and robots; and `CONTACT` (email, phone, address). A value starting `__PLACEHOLDER` is
+  never rendered: `src/lib/contact.ts` shows «Σύντομα διαθέσιμο» / «Coming soon» instead and no link.
+- **Brand:** Stereotropism Proposal 4. Sources in `brand/source/`; the logo there is an embedded
+  raster, not vectors. `scripts/build-brand-assets.py` derives `public/brand/*`, the favicons and
+  the OG image without altering the artwork. The light logo must sit on `--cream` `#F6F7F0` and the
+  dark one on `--navy-band` `#2E3A59`, their baked-in backgrounds, or the image edge shows.
+- **Palette roles:** navy `#2D3A5A` for text and links; `#5A6676` (darkened slate) for secondary
+  text; slate `#6D7A8A` for borders only; blue `#3FA9F7` for non-text accents only (it fails 4.5:1).
+- **Footer:** navy band (dark logo, legal line), then a white strip with the CSSA supporter credit
+  (link to https://www.csl.gr). No other claim about CSSA.
 - **Font:** Noto Sans variable, self-hosted in `public/fonts/` (OFL 1.1), latin and greek subsets.
 - **Tests:** `tests/site.test.mjs`, Node's built-in runner, run against `dist/` after a build.
 - **Workflows:** `.github/workflows/ci.yml` (gates on every push and PR) and
   `.github/workflows/deploy.yml` (gates, then deploy to Pages on push to `main`).
-- **Hosting:** GitHub Pages, deployed by GitHub Actions on push to `main`. The repository is meant
-  to be the organisation's user-site repository, `<org>/<org>.github.io`, served at the root with
-  no base path.
+- **Hosting:** GitHub Pages, deployed by GitHub Actions on push to `main`. Organisation
+  `remedy4all`, repository `remedy4all/remedy4all.github.io`, served at
+  `https://remedy4all.github.io/` with no base path.
 - **Specification:** OpenSpec, in `openspec/`. `openspec/specs/` is what is built;
   `openspec/changes/` is what is planned.
 
@@ -80,7 +90,9 @@ project and survive `adapt` reruns and kit updates.
   the purposes, indicatively and not exhaustively. It also contains members' personal data, which
   is never published.
 - **ΓΕΜΗ:** the Greek General Commercial Registry. Registration number 174746001000.
-- **CSSA:** Computer Solutions S.A., which builds and maintains the site.
+- **CSSA:** Computer Solutions S.A., which builds and maintains the site and is credited in the
+  footer as a supporting entity.
+- **Stereotropism:** the designer of the logo proposals; Proposal 4 was chosen.
 - **SAI:** the management session that issues request packs (`REQ-REMD-NNN`) and checks the build.
 - **Agent kit:** AI Coding Infrastructure (`.claude/`), version in `.claude/VERSION`.
 
@@ -93,10 +105,11 @@ root, after `npm ci`.
 - Dev server: `npm run dev`
 - Type check: `npm run check` (`astro check`: TypeScript and Astro template diagnostics)
 - Lint: `npm run check`. There is no separate linter; `astro check` is the lint gate.
-- Test: `npm test` (runs the build-output tests against `dist/`; needs `npm run build` first)
+- Test: `npm test` (contact-rule unit tests, and build-output tests against `dist/`; needs `npm run build` first)
 - Build: `npm run build` (static output in `dist/`)
 - Preview: `npm run preview`
 - Kit hook tests: `uv run --script .claude/hooks/test_block_ai_attribution.py`
+- Brand assets: `uv run --script scripts/build-brand-assets.py` (only when `brand/source/` changes)
 - Spec: `openspec validate --strict`
 - CI gates, in order: `npm ci`, `npm run check`, `npm run build`, `npm test`. `npm audit` is reported
   and does not block.
@@ -110,7 +123,8 @@ What must not break in this application. The security review (`/agents:security`
    addresses. None of it appears anywhere in the repository or the built site, including commit
    messages, fixtures and OpenSpec files. No member names on the site.
 2. **No invented facts.** No activities, figures, beneficiaries, testimonials, team members,
-   partner logos or contact details that a request did not supply.
+   partner logos or contact details that a request did not supply. The CSSA credit says only
+   what REQ-REMD-003 supplied.
 3. **No third-party requests from visitors' browsers.** No external scripts, trackers, analytics,
    cookies, embedded content or CDN-hosted fonts. Fonts are self-hosted. Nothing is loaded from
    another origin.
