@@ -3,7 +3,7 @@ import Base from "../../layouts/Base.astro";
 import Icon from "../Icon.astro";
 import MarkedText from "../MarkedText.astro";
 import { t, type Lang } from "../../i18n";
-import { contactDisplay, type ContactField } from "../../lib/contact";
+import { contactRows } from "../../lib/contact";
 import { CONTACT } from "../../../site.config.mjs";
 
 interface Props {
@@ -12,12 +12,12 @@ interface Props {
 
 const { lang } = Astro.props;
 const d = t(lang);
-const fields: ContactField[] = ["email", "phone", "address"];
 const icons = { email: "mail", phone: "phone", address: "map-pin" } as const;
-const rows = fields.map((field) => ({
-  label: d.contact.labels[field],
-  icon: icons[field],
-  ...contactDisplay(field, CONTACT[field], d.contact.comingSoon),
+// Only fields with a real value get a row; a placeholder is not shown at all.
+const rows = contactRows(CONTACT).map((row) => ({
+  ...row,
+  label: d.contact.labels[row.field],
+  icon: icons[row.field],
 }));
 ---
 
@@ -31,9 +31,7 @@ const rows = fields.map((field) => ({
             <Icon name={row.icon} />
             {row.label}
           </dt>
-          <dd class={row.published ? undefined : "pending"}>
-            {row.href ? <a href={row.href}>{row.text}</a> : row.text}
-          </dd>
+          <dd>{row.href ? <a href={row.href}>{row.text}</a> : row.text}</dd>
         </div>
       ))
     }

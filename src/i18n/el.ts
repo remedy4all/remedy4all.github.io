@@ -140,7 +140,6 @@ export const el: Dictionary = {
   },
 
   contact: {
-    comingSoon: "Σύντομα διαθέσιμο",
     labels: { email: "Email", phone: "Τηλέφωνο", address: "Ταχυδρομική διεύθυνση" },
   },
 

@@ -22,7 +22,7 @@
 | Type check | `npm run typecheck` |
 | Build | `npm run build` |
 
-_Auto-detected 2026-10-29. Override any wrong value under "Toolchain overrides" below._
+_Auto-detected 2026-10-30. Override any wrong value under "Toolchain overrides" below._
 <!-- CORE:AUTODETECT:END -->
 
 ## Project-specific notes
@@ -45,8 +45,10 @@ project and survive `adapt` reruns and kit updates.
   `src/styles/global.css`; `sitemap.xml` and `robots.txt` as endpoints in `src/pages/`.
 - **Settings, one file:** `site.config.mjs` holds `GITHUB_ORG = "remedy4all"`, from which `SITE_URL`
   (`https://remedy4all.github.io`) is derived and fed to `astro.config.mjs`, canonicals, og:image,
-  sitemap and robots; and `CONTACT` (email, phone, address). A value starting `__PLACEHOLDER` is
-  never rendered: `src/lib/contact.ts` shows «Σύντομα διαθέσιμο» / «Coming soon» instead and no link.
+  sitemap and robots; and `CONTACT` (email, phone, address). The email is `remedy4all@csl.gr`
+  (REQ-REMD-021); phone and address are placeholders. A value starting `__PLACEHOLDER` is never
+  rendered: `src/lib/contact.ts` (`contactRows`) leaves its row off the contact page entirely, label
+  included. `CONTACT` is read only by the contact page.
 - **Brand:** Stereotropism Proposal 4. Sources in `brand/source/`; the logo there is an embedded
   raster, not vectors. `scripts/build-brand-assets.py` derives `public/brand/*`, the favicons and
   the OG image without altering the artwork. The light logo must sit on `--cream` `#F6F7F0` and the
@@ -154,7 +156,7 @@ What must not break in this application. The security review (`/agents:security`
    cookies, embedded content or CDN-hosted fonts. Fonts are self-hosted. Nothing is loaded from
    another origin.
 4. **No placeholder contact data rendered**, and no `mailto:` or `tel:` link until a real value is
-   supplied.
+   supplied. The one link today is `mailto:remedy4all@csl.gr`, on the two contact pages only.
 5. **CI least privilege.** Workflows use the minimum `permissions`; only the Pages deploy job gets
    `pages: write` and `id-token: write`. Official actions only.
 6. **No secrets.** The site needs none; none are committed or referenced.

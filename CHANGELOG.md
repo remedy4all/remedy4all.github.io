@@ -3,6 +3,15 @@
 All notable changes to the site. Versions follow [Semantic Versioning](https://semver.org/); each
 release is tagged `vX.Y.Z`.
 
+## [0.6.0] - 2026-10-30
+
+Contact email (REQ-REMD-021).
+
+### Changed
+- The contact pages show the email remedy4all@csl.gr as a `mailto:` link.
+- Phone and postal address are no longer listed while they have no value: no label and no
+  «Σύντομα διαθέσιμο» / "Coming soon". Each row appears once its value is set in `site.config.mjs`.
+
 ## [0.5.0] - 2026-10-29
 
 Spot illustrations (REQ-REMD-016).

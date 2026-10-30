@@ -87,8 +87,6 @@ export interface Dictionary {
   };
 
   contact: {
-    /** Shown in place of a contact value that is still a placeholder. */
-    comingSoon: string;
     labels: { email: string; phone: string; address: string };
   };
 

@@ -22,10 +22,11 @@ The site URL is derived from it, and the canonical URLs, `og:image`, `sitemap.xm
 `robots.txt` all use it. A custom domain would change only this derivation.
 
 **Contact details.** Email, phone and postal address are the `CONTACT` values in the same file.
-While a value still starts with `__PLACEHOLDER`, the contact page shows «Σύντομα διαθέσιμο» /
-«Coming soon» for that field, and the placeholder is never rendered or linked. To publish one,
-replace its placeholder with the real value and rebuild: an email becomes a `mailto:` link, a
-phone a `tel:` link, and an address plain text.
+The email is `remedy4all@csl.gr` (REQ-REMD-021); phone and address are still placeholders. While a
+value still starts with `__PLACEHOLDER`, its row is left off the contact page entirely, label
+included, and the placeholder is never rendered or linked. To publish one, replace its placeholder
+with the real value and rebuild: its row appears, an email as a `mailto:` link, a phone as a
+`tel:` link, an address as plain text.
 
 ## Design
 
@@ -142,7 +143,7 @@ request.
 | `src/styles/global.css` | All styles, and the self-hosted font |
 | `public/fonts/` | Noto Sans, SIL Open Font License 1.1 (`OFL.txt`) |
 | `public/brand/` | Logos (light, dark, CSSA) and the Open Graph image, generated from `brand/source/` |
-| `src/lib/contact.ts` | How a contact value is shown, and never shown while it is a placeholder |
+| `src/lib/contact.ts` | Which contact rows are shown (none for a placeholder) and how each value is shown |
 | `tests/site.test.mjs` | Checks the built pages: languages, navigation, metadata, brand, credit, and the content rules |
 | `tests/contact.test.mjs` | Unit tests of the contact-field rules |
 | `tests/sections.test.mjs`, `tests/fixtures/` | Builds against fixture entries to pin the populated actions and news state |

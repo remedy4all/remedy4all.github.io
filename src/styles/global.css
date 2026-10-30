@@ -724,11 +724,6 @@ main > .band:nth-child(even) .card.framed {
   margin: 0;
 }
 
-.facts dd.pending {
-  color: var(--muted);
-  font-style: italic;
-}
-
 @media (max-width: 34rem) {
   .facts > div {
     grid-template-columns: 1fr;

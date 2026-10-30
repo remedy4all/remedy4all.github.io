@@ -23,7 +23,7 @@ visible to a visitor.
 
 #### Scenario: Contact page
 - **WHEN** the contact page is opened
-- **THEN** it lists email, phone and postal address, each showing its configured value or, while that value is a placeholder, «Σύντομα διαθέσιμο» / «Coming soon»
+- **THEN** it shows the email remedy4all@csl.gr as a `mailto:` link under the email label, and no phone or postal address row while those values are unset
 
 #### Scenario: No placeholder or personal data
 - **WHEN** the built HTML is searched
@@ -75,17 +75,23 @@ Every page's footer SHALL carry, in the page's language, the text «Με την 
 - **THEN** its footer shows the credit in that page's language with a link to `https://www.csl.gr`
 
 ### Requirement: Contact fields from configuration
-Email, phone and postal address SHALL be named values in `site.config.mjs`, each with an obvious
-placeholder value. A placeholder SHALL never be rendered and SHALL produce no `mailto:` or `tel:`
-link. Replacing a value in the configuration SHALL be all it takes to publish it.
+Email, phone and postal address SHALL be named values in `site.config.mjs`; a value not yet known
+SHALL be an obvious placeholder. A field whose value is unset or a placeholder SHALL NOT be rendered
+at all: no label, no «Σύντομα διαθέσιμο» / "Coming soon" text and no `mailto:` or `tel:` link.
+Setting a value in the configuration SHALL be all it takes to publish its field. The values SHALL
+appear only on the contact pages.
 
 #### Scenario: Placeholder value
-- **WHEN** a contact value is still its placeholder
-- **THEN** the contact page shows «Σύντομα διαθέσιμο» / «Coming soon» for that field and no link
+- **WHEN** a contact value is unset or still its placeholder
+- **THEN** the contact page in either language shows no row for that field
 
 #### Scenario: Real value
-- **WHEN** the email or phone value is replaced with a real one and the site rebuilt
-- **THEN** the field shows it as a `mailto:` or `tel:` link, and a real address shows as text
+- **WHEN** the email or phone value is set to a real one and the site rebuilt
+- **THEN** its row appears and shows it as a `mailto:` or `tel:` link, and a real address appears as text
+
+#### Scenario: Email published
+- **WHEN** either contact page is opened with `CONTACT.email` set to remedy4all@csl.gr
+- **THEN** it has exactly one email link, to `mailto:remedy4all@csl.gr`, and no other page has a `mailto:` or `tel:` link
 
 ### Requirement: Pages per language
 The site SHALL provide a home, an about, a what-we-do, an actions, a news and a contact page in each

@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { SITE_URL } from "../site.config.mjs";
+import { CONTACT, SITE_URL } from "../site.config.mjs";
 
 const DIST = new URL("../dist/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 
@@ -111,7 +111,8 @@ for (const { lang, path, counterpart } of ALL) {
     const html = read(path);
     const text = visibleText(html);
     assert.doesNotMatch(text, /lorem|ipsum|\bTBD\b|\bTODO\b|placeholder|not-yet-chosen/i);
-    assert.doesNotMatch(html, /mailto:|tel:/i);
+    const links = [...html.matchAll(/(?:mailto|tel):[^"'\s<]*/gi)].map((m) => m[0]);
+    assert.deepEqual(links, path.endsWith("/contact/") ? [`mailto:${CONTACT.email}`] : [], "contact links");
     assert.doesNotMatch(html, /__PLACEHOLDER/i, "a placeholder contact value reached the page");
     // Markers of the members' data the statute carries: ID cards, tax numbers (9 digits).
     assert.doesNotMatch(text, /Α\.?Φ\.?Μ\.?|Α\.?Δ\.?Τ\.?|δελτί\S* ταυτότητας|\bVAT\b|\bID card\b|\btax number\b/i);
@@ -161,10 +162,20 @@ test("what-we-do pages: eleven purposes in each language", () => {
   }
 });
 
-test("contact pages: each placeholder field reads coming soon", () => {
-  const count = (html, s) => visibleText(html).split(s).length - 1;
-  assert.equal(count(read("/contact/"), "Σύντομα διαθέσιμο"), 3);
-  assert.equal(count(read("/en/contact/"), "Coming soon"), 3);
+test("contact pages: the email as one mailto: link, no phone or address row, no coming soon", () => {
+  const absent = {
+    "/contact/": ["Σύντομα διαθέσιμο", "Τηλέφωνο", "Ταχυδρομική διεύθυνση"],
+    "/en/contact/": ["Coming soon", "Phone", "Postal address"],
+  };
+  for (const [path, words] of Object.entries(absent)) {
+    const html = read(path);
+    const list = html.match(/<dl class="facts contact-fields[^"]*"[^>]*>([\s\S]*?)<\/dl>/)[1];
+    const rows = list.match(/<dt>[\s\S]*?<\/dd>/g);
+    assert.equal(rows.length, 1, `${path}: one contact row`);
+    assert.match(rows[0], /<\/span>\s*Email\s*<\/dt>\s*<dd><a href="mailto:remedy4all@csl\.gr">remedy4all@csl\.gr<\/a><\/dd>/);
+    const text = visibleText(html);
+    for (const word of words) assert.ok(!text.includes(word), `${path}: ${word}`);
+  }
 });
 
 for (const { lang, path, counterpart } of ALL) {
@@ -285,7 +296,7 @@ for (const { path } of ALL) {
 test("contact fields carry icon badges", () => {
   for (const path of ["/contact/", "/en/contact/"]) {
     const dts = read(path).match(/<dt>[\s\S]*?<\/dt>/g);
-    assert.equal(dts.length, 3);
+    assert.equal(dts.length, 1);
     for (const dt of dts) assert.match(dt, /<span class="icon">[\s\S]*?<svg aria-hidden="true"/);
   }
 });

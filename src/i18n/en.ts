@@ -138,7 +138,6 @@ export const en: Dictionary = {
   },
 
   contact: {
-    comingSoon: "Coming soon",
     labels: { email: "Email", phone: "Phone", address: "Postal address" },
   },
 
